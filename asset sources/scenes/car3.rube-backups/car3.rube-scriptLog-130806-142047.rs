@@ -1,0 +1,21 @@
+//Restarted script log at Tue 06 Aug 2013 12:41:55 CEST
+getWorld().setCustomInt('max_fuel',6000);
+getWorld().setCustomInt('max_fuel',6000);
+getWorld().setCustomInt('max_fuel',6000);
+getWorld().setCustomInt('max_fuel',6000);
+getWorld().setCustomInt('max_fuel',6000);
+getWorld().setCustomInt('max_fuel',6000);
+getWorld().clearCustomProperty('roof_fixture');
+getWorld().setCustomString('roof_fixture','roof_fixture');
+getWorld().clearCustomProperty('roof_fixture');
+removeCustomProperty('world','roof_fixture');
+getFixture(4).select();
+getFixture(4).deselect();
+getFixture(4).select();
+getFixture(4).deselect();
+getFixture(4).select();
+getFixture(4).deselect();
+getFixture(4).select();
+getFixture(4).deselect();
+addCustomProperty('world','roof_fixture','Roof fixture','string');
+getWorld().setCustomString('roof_fixture','roof_fixture');

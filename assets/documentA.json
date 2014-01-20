@@ -1,0 +1,162 @@
+
+{
+   "allowSleep" : true,
+   "autoClearForces" : true,
+   "body" : 
+   [
+      
+      {
+         "angle" : 0,
+         "angularVelocity" : 0,
+         "awake" : true,
+         "fixture" : 
+         [
+            
+            {
+               "density" : 1,
+               "friction" : 0.2,
+               "name" : "fixture1",
+               "polygon" : 
+               {
+                  "vertices" : 
+                  {
+                     "x" : [ 1.50, 0.6036767959594727, 0.5428857803344727, 0.7594118118286133 ],
+                     "y" : [ -1.50, 2.293928146362305, -0.5055580139160156, -1.50 ]
+                  }
+               }
+            },
+            
+            {
+               "density" : 1,
+               "friction" : 0.2,
+               "name" : "fixture1",
+               "polygon" : 
+               {
+                  "vertices" : 
+                  {
+                     "x" : 
+                     [
+                        0.6036767959594727,
+                        -0.6036767959594727,
+                        -0.4856147766113281,
+                        0.5428857803344727
+                     ],
+                     "y" : 
+                     [
+                        2.293928146362305,
+                        2.293928146362305,
+                        -0.5055580139160156,
+                        -0.5055580139160156
+                     ]
+                  }
+               }
+            },
+            
+            {
+               "density" : 1,
+               "friction" : 0.2,
+               "name" : "fixture1",
+               "polygon" : 
+               {
+                  "vertices" : 
+                  {
+                     "x" : [ -0.4856147766113281, -0.6036767959594727, -1.50, -0.6480083465576172 ],
+                     "y" : [ -0.5055580139160156, 2.293928146362305, -1.50, -1.50 ]
+                  }
+               }
+            }
+         ],
+         "linearVelocity" : 0,
+         "massData-I" : 11.06558895111084,
+         "massData-center" : 
+         {
+            "x" : -0.007669709157198668,
+            "y" : 0.3343821167945862
+         },
+         "massData-mass" : 6.770007610321045,
+         "name" : "actor",
+         "position" : 
+         {
+            "x" : 0,
+            "y" : 3.099999904632568
+         },
+         "type" : 2
+      },
+      
+      {
+         "angle" : 0,
+         "angularVelocity" : 0,
+         "awake" : true,
+         "fixture" : 
+         [
+            
+            {
+               "chain" : 
+               {
+                  "vertices" : 
+                  {
+                     "x" : [ -5.0, 5.0 ],
+                     "y" : [ 0.0, 0.0 ]
+                  }
+               },
+               "density" : 1,
+               "friction" : 0.2,
+               "name" : "fixture0"
+            }
+         ],
+         "linearVelocity" : 0,
+         "name" : "body0",
+         "position" : 0,
+         "type" : 0
+      }
+   ],
+   "collisionbitplanes" : 
+   {
+      "names" : 
+      [
+         "bitplane1",
+         "bitplane2",
+         "bitplane3",
+         "bitplane4",
+         "bitplane5",
+         "bitplane6",
+         "bitplane7",
+         "bitplane8",
+         "bitplane9",
+         "bitplane10",
+         "bitplane11",
+         "bitplane12",
+         "bitplane13",
+         "bitplane14",
+         "bitplane15",
+         "bitplane16",
+         "bitplane17",
+         "bitplane18",
+         "bitplane19",
+         "bitplane20",
+         "bitplane21",
+         "bitplane22",
+         "bitplane23",
+         "bitplane24",
+         "bitplane25",
+         "bitplane26",
+         "bitplane27",
+         "bitplane28",
+         "bitplane29",
+         "bitplane30",
+         "bitplane31",
+         "bitplane32"
+      ]
+   },
+   "continuousPhysics" : true,
+   "gravity" : 
+   {
+      "x" : 0,
+      "y" : -10.0
+   },
+   "positionIterations" : 3,
+   "stepsPerSecond" : 60.0,
+   "subStepping" : false,
+   "velocityIterations" : 8,
+   "warmStarting" : true
+}

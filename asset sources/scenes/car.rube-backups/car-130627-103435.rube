@@ -1,0 +1,452 @@
+
+{
+  "activeScript" : "for (int n = 0; n< 8; n++)\n\tgetFixture(\"fixture\"+n).setName(\"playerfoot\"+n);\n",
+  "collisionbitplanes" : 
+  {
+    "names" : 
+    [
+      "bitplane1",
+      "bitplane2",
+      "bitplane3",
+      "bitplane4",
+      "bitplane5",
+      "bitplane6",
+      "bitplane7",
+      "bitplane8",
+      "bitplane9",
+      "bitplane10",
+      "bitplane11",
+      "bitplane12",
+      "bitplane13",
+      "bitplane14",
+      "bitplane15",
+      "bitplane16",
+      "bitplane17",
+      "bitplane18",
+      "bitplane19",
+      "bitplane20",
+      "bitplane21",
+      "bitplane22",
+      "bitplane23",
+      "bitplane24",
+      "bitplane25",
+      "bitplane26",
+      "bitplane27",
+      "bitplane28",
+      "bitplane29",
+      "bitplane30",
+      "bitplane31",
+      "bitplane32"
+    ]
+  },
+  "customPropertyDefs" : 
+  [
+    
+    {
+      "class" : "world",
+      "displayName" : "Camera lower x",
+      "name" : "actor_view_lower_x",
+      "type" : "float"
+    },
+    
+    {
+      "class" : "world",
+      "displayName" : "Camera lower y",
+      "name" : "actor_view_lower_y",
+      "type" : "float"
+    },
+    
+    {
+      "class" : "world",
+      "displayName" : "View port width",
+      "name" : "viewport_height",
+      "type" : "float"
+    },
+    
+    {
+      "class" : "world",
+      "displayName" : "Actor",
+      "name" : "actor",
+      "type" : "string"
+    },
+    
+    {
+      "class" : "world",
+      "displayName" : "View port width",
+      "name" : "viewport_width",
+      "type" : "float"
+    },
+    
+    {
+      "class" : "world",
+      "displayName" : "Camera upper x",
+      "name" : "actor_view_upper_x",
+      "type" : "float"
+    },
+    
+    {
+      "class" : "world",
+      "displayName" : "Camera upper y",
+      "name" : "actor_view_upper_y",
+      "type" : "float"
+    }
+  ],
+  "metaworld" : 
+  {
+    "allowSleep" : true,
+    "autoClearForces" : true,
+    "continuousPhysics" : true,
+    "customProperties" : 
+    [
+      
+      {
+        "float" : -4.0,
+        "name" : "actor_view_lower_x"
+      },
+      
+      {
+        "float" : -4.0,
+        "name" : "actor_view_lower_y"
+      },
+      
+      {
+        "float" : 4.0,
+        "name" : "actor_view_upper_x"
+      },
+      
+      {
+        "float" : 4.0,
+        "name" : "actor_view_upper_y"
+      },
+      
+      {
+        "float" : -1.0,
+        "name" : "viewport_height"
+      },
+      
+      {
+        "float" : 25.0,
+        "name" : "viewport_width"
+      },
+      
+      {
+        "name" : "actor",
+        "string" : "car"
+      }
+    ],
+    "exportOptions" : 
+    {
+      "saveFullPathForImages" : false,
+      "useHumanReadableFloats" : true
+    },
+    "gravity" : 
+    {
+      "x" : 0,
+      "y" : -10.0
+    },
+    "metabody" : 
+    [
+      
+      {
+        "angle" : 0,
+        "angularVelocity" : 0,
+        "awake" : true,
+        "fixture" : 
+        [
+          
+          {
+            "density" : 4.0,
+            "friction" : 1,
+            "id" : 2,
+            "name" : "frontwheel",
+            "shapes" : 
+            [
+              
+              {
+                "radius" : 0.4391508996486664,
+                "type" : "circle"
+              }
+            ],
+            "vertices" : 
+            {
+              "x" : [ 0.0 ],
+              "y" : [ 0.0 ]
+            }
+          }
+        ],
+        "id" : 1,
+        "linearVelocity" : 0,
+        "massData-I" : 0.2336872369050980,
+        "massData-mass" : 2.423468828201294,
+        "name" : "frontwheel",
+        "position" : 
+        {
+          "x" : 1.954950332641602,
+          "y" : 2.039184808731079
+        },
+        "type" : "dynamic"
+      },
+      
+      {
+        "angle" : 0,
+        "angularVelocity" : 0,
+        "awake" : true,
+        "fixture" : 
+        [
+          
+          {
+            "density" : 4.0,
+            "friction" : 1,
+            "id" : 4,
+            "name" : "rearwheel",
+            "shapes" : 
+            [
+              
+              {
+                "radius" : 0.4391508996486664,
+                "type" : "circle"
+              }
+            ],
+            "vertices" : 
+            {
+              "x" : [ 0.0 ],
+              "y" : [ 0.0 ]
+            }
+          }
+        ],
+        "id" : 2,
+        "linearVelocity" : 0,
+        "massData-I" : 0.2336872369050980,
+        "massData-mass" : 2.423468828201294,
+        "name" : "rearwheel",
+        "position" : 
+        {
+          "x" : -0.9732189178466797,
+          "y" : 2.039184808731079
+        },
+        "type" : "dynamic"
+      },
+      
+      {
+        "angle" : 0,
+        "angularVelocity" : 0,
+        "awake" : true,
+        "fixture" : 
+        [
+          
+          {
+            "density" : 0.750,
+            "friction" : 0.8000000119209290,
+            "id" : 6,
+            "name" : "carlower",
+            "restitution" : 0.1000000014901161,
+            "shapes" : 
+            [
+              
+              {
+                "type" : "polygon"
+              }
+            ],
+            "vertices" : 
+            {
+              "x" : 
+              [
+                2.391760110855103,
+                2.371400117874146,
+                2.033610105514526,
+                -1.823310017585754,
+                -2.200170040130615,
+                -2.240900039672852,
+                -2.064899921417236,
+                2.104389905929565
+              ],
+              "y" : 
+              [
+                -0.2876459956169128,
+                0.1395390033721924,
+                0.2991139888763428,
+                0.5205680131912231,
+                0.334744006395340,
+                -0.2985900044441223,
+                -0.3891539871692657,
+                -0.3894709944725037
+              ]
+            }
+          },
+          
+          {
+            "density" : 0.750,
+            "friction" : 0.8000000119209290,
+            "id" : 7,
+            "name" : "carupper",
+            "restitution" : 0.1000000014901161,
+            "shapes" : 
+            [
+              
+              {
+                "type" : "polygon"
+              }
+            ],
+            "vertices" : 
+            {
+              "x" : 
+              [
+                1.208260059356689,
+                0.6846150159835815,
+                0.419759988784790,
+                -0.4459980130195618,
+                -0.7959259748458862,
+                -1.103929996490479,
+                -1.367390036582947
+              ],
+              "y" : 
+              [
+                0.3468869924545288,
+                0.8653119802474976,
+                0.9186699986457825,
+                1.001880049705505,
+                0.9778829813003540,
+                0.8607249855995178,
+                0.4947359859943390
+              ]
+            }
+          }
+        ],
+        "id" : 3,
+        "linearVelocity" : 0,
+        "massData-I" : 5.389615058898926,
+        "massData-center" : 
+        {
+          "x" : -0.06040599942207336,
+          "y" : 0.1643623560667038
+        },
+        "massData-mass" : 3.529048681259155,
+        "name" : "car",
+        "position" : 
+        {
+          "x" : 0.3368092179298401,
+          "y" : 2.320669651031494
+        },
+        "type" : "dynamic"
+      }
+    ],
+    "metaimage" : 
+    [
+      
+      {
+        "body" : 2,
+        "center" : 
+        {
+          "x" : -0.001794457435607910,
+          "y" : -0.004129886627197266
+        },
+        "file" : "images/carwheel.png",
+        "filter" : 1,
+        "flip" : false,
+        "id" : 1,
+        "name" : "rearwheel",
+        "opacity" : 1,
+        "scale" : 1
+      },
+      
+      {
+        "body" : 1,
+        "center" : 
+        {
+          "x" : -0.001794457435607910,
+          "y" : -0.004129886627197266
+        },
+        "file" : "images/carwheel.png",
+        "filter" : 1,
+        "flip" : false,
+        "id" : 2,
+        "name" : "frontwheel",
+        "opacity" : 1,
+        "scale" : 1
+      },
+      
+      {
+        "body" : 3,
+        "center" : 
+        {
+          "x" : 0.01010882854461670,
+          "y" : 0.2893288135528564
+        },
+        "file" : "images/carbody.png",
+        "filter" : 1,
+        "flip" : false,
+        "id" : 3,
+        "name" : "carbody",
+        "opacity" : 0.50,
+        "renderOrder" : 1,
+        "scale" : 2.507289886474609
+      }
+    ],
+    "metajoint" : 
+    [
+      
+      {
+        "anchorA" : 
+        {
+          "x" : -1.310029983520508,
+          "y" : -0.3029899895191193
+        },
+        "anchorB" : 
+        {
+          "x" : -0.000221252441406250,
+          "y" : 0
+        },
+        "bodyA" : 3,
+        "bodyB" : 2,
+        "collideConnected" : false,
+        "enableMotor" : true,
+        "id" : 1,
+        "localAxisA" : 
+        {
+          "x" : 0,
+          "y" : 1
+        },
+        "maxMotorTorque" : 1,
+        "motorSpeed" : 0,
+        "name" : "rearwheel",
+        "springDampingRatio" : 0.07500000298023224,
+        "springFrequency" : 4.0,
+        "type" : "wheel"
+      },
+      
+      {
+        "anchorA" : 
+        {
+          "x" : 1.618139982223511,
+          "y" : -0.3086310029029846
+        },
+        "anchorB" : 
+        {
+          "x" : 0.001029968261718750,
+          "y" : 0
+        },
+        "bodyA" : 3,
+        "bodyB" : 1,
+        "collideConnected" : false,
+        "enableMotor" : true,
+        "id" : 2,
+        "localAxisA" : 
+        {
+          "x" : 0,
+          "y" : 1
+        },
+        "maxMotorTorque" : 1,
+        "motorSpeed" : 0,
+        "name" : "frontwheel",
+        "springDampingRatio" : 0.07500000298023224,
+        "springFrequency" : 4.0,
+        "type" : "wheel"
+      }
+    ],
+    "positionIterations" : 3,
+    "stepsPerSecond" : 60.0,
+    "subStepping" : false,
+    "velocityIterations" : 8,
+    "warmStarting" : true
+  }
+}

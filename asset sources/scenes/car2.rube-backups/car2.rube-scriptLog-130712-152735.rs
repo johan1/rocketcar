@@ -1,0 +1,26 @@
+//Restarted script log at Fri 12 Jul 2013 15:21:12 CEST
+getBody(5).deselect();
+getBody(2).deselect();
+getBody(1).deselect();
+getBody(5).select();
+getBody(1).select();
+getBody(2).select();
+getBody(5).deselect();
+getBody(2).deselect();
+getBody(1).deselect();
+getBody(5).select();
+getBody(2).select();
+getBody(1).select();
+getBody(5).deselect();
+getBody(2).deselect();
+getBody(1).deselect();
+getBody(1).select();
+getBody(1).deselect();
+getBody(5).select();
+getBody(5).deselect();
+getBody(2).select();
+getBody(2).deselect();
+getBody(1).select();
+getFixture(1).select();
+getFixture(1).deselect();
+getImage(1).deselect();
