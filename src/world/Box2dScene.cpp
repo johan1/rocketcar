@@ -84,12 +84,21 @@ Box2dScene::Box2dScene() :
 			}
 		} else if (pe.getActionType() == PointerEvent::ActionType::MOVED) {
 			if (mouseJoints.find(pe.getPointerId()) != mouseJoints.end()) {
-				mouseJoints[pe.getPointerId()]->SetTarget(b2Vec2(worldCoord.x, worldCoord.y));
+				if (!isMouseJointDestroyed(mouseJoints[pe.getPointerId()])) {
+					mouseJoints[pe.getPointerId()]->SetTarget(b2Vec2(worldCoord.x, worldCoord.y));
+				} else {
+					mouseJoints.erase(pe.getPointerId());
+				}
 				return true;
 			}
 		} else { // Cancelled or released
 			if (mouseJoints.find(pe.getPointerId()) != mouseJoints.end()) {
-				box2dWorld.DestroyJoint(mouseJoints[pe.getPointerId()]);
+
+				// Remoove joint if it still exists,
+				if (!isMouseJointDestroyed(mouseJoints[pe.getPointerId()])) {
+					box2dWorld.DestroyJoint(mouseJoints[pe.getPointerId()]);
+				}
+				
 				mouseJoints.erase(pe.getPointerId());
 				return true;
 			}
@@ -97,6 +106,17 @@ Box2dScene::Box2dScene() :
 
 		return false;
 	}));
+}
+
+// (a destroyed body might cause the mouse joints to destroyed implicitely at any time)
+bool Box2dScene::isMouseJointDestroyed(b2MouseJoint* mouseJoint) {
+	for (auto j = box2dWorld.GetJointList(); j != nullptr; j = j->GetNext()) {
+		if (mouseJoint == j) {
+			return false;
+		}
+	}
+	
+	return true;
 }
 
 LoadData Box2dScene::loadBox2dData(Box2dParseData const& box2dData, b2Vec2 const& offset, bool modifyWorldProperties) {
@@ -156,7 +176,7 @@ void Box2dScene::updateImpl() {
 		// If body is not sleeping we should update bodyobject position.
 		if (attachInfo.body->IsAwake()) {
 			auto bodyObject = attachInfo.emptyObject;
-			auto oldPos = bodyObject->getPosition();
+			// auto oldPos = bodyObject->getPosition();
 
 			auto bodyPos = attachInfo.body->GetPosition();
 			bodyObject->setPosition(glm::vec3(bodyPos.x, bodyPos.y, 0.0f));

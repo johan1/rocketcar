@@ -133,6 +133,8 @@ private:
 
 	virtual void updateImpl();
 	void updateCameraPosition();
+
+	bool isMouseJointDestroyed(b2MouseJoint* mouseJoint);
 };
 
 inline
