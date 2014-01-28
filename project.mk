@@ -2,6 +2,8 @@
 NAME := rocketcar
 TYPE := executable
 
+TARGET_OPTIM := debug
+
 GAME_LABEL := Rocket Car
 GAME_PKGNAME := com.mridle.rocketcar
 GAME_VERSION := 0.0.1

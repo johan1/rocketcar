@@ -44,7 +44,7 @@ std::string RubeParser::valueTypeToString(json::value const& value) {
 }
 
 json::value RubeParser::lookupValue(json::value const& value, std::string const& key, ValueTypeChecker checker) {
-	if(DO_LOG) LOGD(boost::format("lookupValue: %s") % key); 
+	if(DO_LOG) LOGD("lookupValue: " << key);
 	if (!json::has_key(value, key)) {
 		return getDefaultValue(checker);
 	}

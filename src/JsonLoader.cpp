@@ -13,8 +13,7 @@ json::value loadJson(rocket::resource::ResourceId const& resourceId) {
 	try {
 		return json::parse(*is);
 	} catch (std::exception &e) {
-		LOGE(boost::format("Failed to parse json resource=%s, error=%s") %
-				resourceId % e.what());
+		LOGE("Failed to parse json resource=" << resourceId <<", error=" << e.what());
 		throw;
 	}
 }

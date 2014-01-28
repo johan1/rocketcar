@@ -43,7 +43,7 @@ std::function<glm::mat4(glm::vec4 const&)> gameProjectionFunction() {
 		// Height is varying depending on screen size.
 		// ww = C * sw => C = ww/sw => wh = C * sh = ww / sw * sh
 		float wh = ww/sw * sh;
-		LOGD(boost::format("screen dimensions={%f, %f}, PROJECTION HEIGHT %f") % sw % sh % wh);
+		LOGD("screen dimensions={" << sw << ", " << sh << "}, projection height: " << wh);
 
 		// Let's support depths in [-100, 100] to allow using multiple layer using integers.
 		return glm::ortho(viewPort[0] - ww/2.0f, viewPort[0] + ww/2.0f,
@@ -123,7 +123,7 @@ LoadData Box2dScene::loadBox2dData(Box2dParseData const& box2dData, b2Vec2 const
 	auto loadData = rocket::box2d::loadBox2dData(box2dWorld, box2dData, offset, modifyWorldProperties);
 
 	for (auto& imageData : box2dData.images) {
-		LOGD(boost::format("Attaching %s") % imageData.file);
+		LOGD("Attaching " << imageData.file);
 
 		b2Body *body = nullptr; // parseData.bodies[imageData.bodyId].body;
 		if (imageData.bodyId >= 0 && imageData.bodyId < static_cast<int>(loadData.bodiesInLoadOrder.size())) {
@@ -136,7 +136,7 @@ LoadData Box2dScene::loadBox2dData(Box2dParseData const& box2dData, b2Vec2 const
 		// width and height is determined through bottomleft and topright corners
 		float width = imageData.corners[2].x-imageData.corners[0].x;
 		float height = imageData.corners[2].y-imageData.corners[0].y;
-		LOGD(boost::format("Loading sprite %s size=(%f, %f)") % imageData.name % width % height);
+		LOGD("Loading sprite " << imageData.name << " size=(" << width << ", " << height << ")");
 		std::shared_ptr<Sprite> sprite = std::make_shared<Sprite>(
 				ImageId(ResourceId(imageData.file)), width, height);
 
@@ -203,8 +203,6 @@ void Box2dScene::updateCameraPosition() {
 	auto actorDistx = actorPos.x - cameraPos.x;
 	auto actorDisty = actorPos.y - cameraPos.y;
 
-//	LOGD(boost::format("cameraSpeed %f cameraDistanceToActor[0]=%f") % cameraSpeed % cameraDistanceToActor[0]);
-//	float dx;
 	if (actorDistx < cameraDistanceToActor[0]) {
 		auto dx = std::max(actorDistx - cameraDistanceToActor[0], -cameraSpeed); // (dx < 0)
 		cameraPos.x += dx; // i.e. cameraPos.x = actorPos.x - cameraDistanceToActor[0].

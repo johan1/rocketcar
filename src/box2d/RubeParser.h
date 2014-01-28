@@ -26,7 +26,7 @@ public:
 	};
 
 	RubeParserException(Type type, std::string const& what) : std::runtime_error(what), type(type) {
-		LOGD(boost::format("RubeParserException (%d): %s\n") % static_cast<int>(type) % what);
+		LOGD("RubeParserException (" << static_cast<int>(type) << "): " << what);
 	}
 	Type getType() const { return type; }
 
