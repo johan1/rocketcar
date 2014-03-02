@@ -204,13 +204,15 @@ void Box2dScene::updateCameraPosition() {
 	auto actorDisty = actorPos.y - cameraPos.y;
 
 	if (actorDistx < cameraDistanceToActor[0]) {
-		auto dx = std::max(actorDistx - cameraDistanceToActor[0], -cameraSpeed); // (dx < 0)
+//		auto dx = std::max(actorDistx - cameraDistanceToActor[0], -cameraSpeed); // (dx < 0)
+		auto dx = actorDistx - cameraDistanceToActor[0];
 		cameraPos.x += dx; // i.e. cameraPos.x = actorPos.x - cameraDistanceToActor[0].
 	} else if (actorDistx > cameraDistanceToActor[1]) {
 		if (cameraSpeed < actorDistx - cameraDistanceToActor[1]) {
 			LOGE("We need to go faster...");
 		}
-		auto dx = std::min(actorDistx - cameraDistanceToActor[1], cameraSpeed); // (dx > 0)
+//		auto dx = std::min(actorDistx - cameraDistanceToActor[1], cameraSpeed); // (dx > 0)
+		auto dx = actorDistx - cameraDistanceToActor[1];
 		cameraPos.x += dx; // i.e. cameraPos.x = actorPos.x - cameraDistanceToActor[1];
 	}
 

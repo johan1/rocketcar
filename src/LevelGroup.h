@@ -15,6 +15,7 @@
 
 #include <unordered_map>
 
+#include <rocket/transitions/CircleFadeOut.h>
 
 namespace rocketcar {
 
@@ -78,6 +79,8 @@ private:
 	std::shared_ptr<rocket::game2d::ParticleGenerator> rocketParticleGenerator;
 	std::shared_ptr<rocket::game2d::ParticleGenerator> explosionParticleGenerator;
 
+	std::shared_ptr<rocket::CircleFadeOut> postRenderer;
+
 	RocketCar rocketCar;
 	HUD hud;
 
@@ -100,16 +103,10 @@ private:
 
 	std::unordered_map<b2Body*, std::unique_ptr<Box>> boxes;
 
-/*
-	rocket::game2d::ParticleDescriptor createRocketEmitterDescriptor();
-	rocket::game2d::ParticleDescriptor createExplosionEmitterDescriptor();
+	void fadeOut();
 
-	std::shared_ptr<ParticleGenerator> const& getRocketParticleGenerator();
-	std::shared_ptr<ParticleGenerator> const& getExplosionParticleGenerator();
+	void fadeIn();
 
-	rocket::game2d::ParticleDescriptor createRocketEmitterDescriptor();
-	rocket::game2d::ParticleDescriptor createExplosionEmitterDescriptor();
-*/
 };
 
 };

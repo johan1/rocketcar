@@ -20,7 +20,7 @@
 #include <rocket/game2d/world/Sprite.h>
 #include <rocket/game2d/world/ParticleEmitter.h>
 #include <rocket/game2d/world/Uniform2dParticleGenerator.h>
-
+#include <rocket/transitions/CircleFadeOut.h>
 #include "JsonLoader.h"
 #include "box2d/RubeParser.h"
 #include "box2d/Box2dLoader.h"
@@ -51,8 +51,13 @@ LevelGroup::LevelGroup() {
 	controllerScene->addButton(button_id::BUTTON2, AABox(createPoint(0, -1), createPoint(1, 1)));
 	addScene(controllerScene);
 
+	postRenderer = std::make_shared<CircleFadeOut>();
+	postRenderer->setRadius(0.0f, 0.0f);
+
 	box2dScene = std::make_shared<Box2dScene>();
+	box2dScene->setPostRenderer(postRenderer);
 	bgScene = std::make_shared<ParallaxScene>(&box2dScene->getCamera());
+	bgScene->setPostRenderer(postRenderer);
 
 	// Loading rocket car data from file.
 	RubeParser rubeParser;
@@ -133,7 +138,6 @@ void LevelGroup::loadLevel() {
 	auto b2Vecs = groundData.vecs;
 	auto boxMetas = levelGenerator.generateBoxes(
 			box2dScene->getBox2dWorld(), b2Vecs[1].x, b2Vecs[b2Vecs.size()-1].x, 12.0f, 20.0f, 0.5f, 5.0f, 200);
-//	auto boxMetas = levelGenerator.generateBoxes(box2dScene->getBox2dWorld(), 2.0f, 5.0f, 12.0f, 20.0f, 0.5f, 5.0f, 2);
 	for (auto boxMeta : boxMetas) {
 		auto sprite = std::make_shared<Sprite>(ImageId(ResourceId("images/box.png")), boxMeta.size, boxMeta.size);
 		auto ro = box2dScene->attachToBox2dBody(boxMeta.body, sprite);
@@ -174,6 +178,14 @@ void LevelGroup::loadRocketCar(bool updateWorldProperties) {
 	rocketCar.rocketEmitter = std::make_shared<ParticleEmitter>(rocketParticleGenerator, ResourceId("images/smoke.png"), 500);
 	box2dScene->attachToBox2dBody(rocketCar.chassi, rocketCar.rocketEmitter);
 	box2dScene->setActor(rocketCar.chassi);
+
+	/*
+	box2dScene->schedule([this] () {
+		fadeIn();
+		return ticks::zero();
+	}, milliseconds(500));
+	*/
+	fadeIn();
 }
 
 void LevelGroup::onLoaded() {
@@ -203,7 +215,10 @@ void LevelGroup::solveRoofCollision(b2Fixture* other) {
 			explosionObject->move(glm::vec3(0, 0, 5));
 			box2dScene->schedule([this, explosionObject]() {
 				box2dScene->remove(explosionObject);
+				return ticks::zero();
 			}, seconds(5));
+
+			
 
 			explosionEmitter->start();
 
@@ -223,10 +238,62 @@ void LevelGroup::solveRoofCollision(b2Fixture* other) {
 					// We should schedule this for later...
 					loadRocketCar(false);
 					updateHud();
-				}, milliseconds(2000));
+					return ticks::zero();
+				}, seconds(3));
+
+				box2dScene->schedule([this] () {
+					fadeOut();
+					return ticks::zero();
+				}, seconds(2));
+
 			});
 		}
 	}
+}
+
+void LevelGroup::fadeOut() {
+	auto steps = boost::chrono::duration_cast<ticks>(milliseconds(500)).count();
+	auto stepSize = 1.4f/static_cast<float>(steps);
+
+	box2dScene->setPostRenderer(postRenderer);
+	bgScene->setPostRenderer(postRenderer);
+
+	box2dScene->schedule([this, steps, stepSize] () mutable {
+		auto outerRadius = stepSize * static_cast<float>(steps);
+		auto innerRadius = std::max(0.0f, outerRadius - 0.3f);
+		postRenderer->setRadius(innerRadius, outerRadius);
+
+		--steps;
+		if (steps >= 0) {
+			return ticks(1);
+		} else {
+			return ticks::zero();
+		}
+	});
+}
+
+void LevelGroup::fadeIn() {
+	auto steps = boost::chrono::duration_cast<ticks>(milliseconds(1000)).count();
+	auto stepSize = 1.4f/static_cast<float>(steps);
+
+	box2dScene->setPostRenderer(postRenderer);
+	bgScene->setPostRenderer(postRenderer);
+
+	box2dScene->schedule([this, steps, stepSize] () mutable {
+		auto outerRadius = 1.4f - stepSize * static_cast<float>(steps);
+		auto innerRadius = std::max(0.0f, outerRadius -0.3f);
+		postRenderer->setRadius(innerRadius, outerRadius);
+
+		--steps;
+		if (steps > 0) {
+			return ticks(1);
+		} else {
+			box2dScene->clearPostRenderer();
+			bgScene->clearPostRenderer();
+			
+			return ticks::zero();
+		}
+	});
 }
 
 void LevelGroup::onPreSolveContact(b2Contact *contact, b2Manifold const*) {
@@ -242,8 +309,6 @@ void LevelGroup::solveBoxCollision(b2Body *body, float impulse2) {
 	if (boxes.find(body) != boxes.end()) {
 		auto limit = boxes[body]->getDuration() * body->GetMass() * 10.0f;
 		if (impulse2 > limit * limit) {
-//			LOGD("Muahahhah");
-
 			auto explosionEmitter = std::make_shared<ParticleEmitter>(explosionParticleGenerator, ResourceId("images/smoke.png"), 500);
 			auto bodyPos = body->GetPosition();
 			auto explosionObject = box2dScene->add(explosionEmitter, true); //   attachToBox2dBody(body, explosionEmitter);
@@ -262,6 +327,7 @@ void LevelGroup::solveBoxCollision(b2Body *body, float impulse2) {
 			// Let's remove explosion after 5 seconds...
 			box2dScene->schedule([this, explosionObject]() {
 				box2dScene->remove(explosionObject);
+				return ticks::zero();
 			}, seconds(5));
 		}
 	}
