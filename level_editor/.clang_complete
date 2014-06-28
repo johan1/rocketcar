@@ -1,0 +1,9 @@
+-I.
+-I./build
+-isystem /usr/lib/clang/3.5/include
+-isystem /include/jsoncpp
+-isystem /usr/include/qt4
+-isystem /usr/include/qt4/Qt
+-isystem /usr/include/qt4/QtGui
+-isystem /usr/include/qt4/QtCore
+
