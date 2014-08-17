@@ -16,7 +16,7 @@ public:
     explicit NewLevelDialog(QWidget *parent = 0);
     ~NewLevelDialog();
 
-    LevelEditor const& getEditor() {
+    LevelEditor &getEditor() {
         return editor;
     }
 

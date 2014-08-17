@@ -4,13 +4,9 @@
 /**
  * Implements loading of box2d according to https://www.iforce2d.net/rube/json-structure
  */
-// #include <stdexcept>
 #include <Box2D/Box2D.h>
-#include <rocket/util/Log.h>
-#include <cppjson/json.h>
-
-// #include <boost/any.hpp>
-// #include <unordered_map>
+#include <rocket/Log.h>
+#include <json/json.h>
 
 #include "CommonStructs.h"
 
@@ -36,54 +32,39 @@ private:
 
 class RubeParser {
 public:
-	RubeParser() {} /* : offset(b2Vec2(0, 0)), modifyWorldProperties(false) {} */
+	RubeParser() {}
 
-/*
-	void setOffset(b2Vec2 const& offset) {
-		this->offset = offset;
-	}
-
-	void setModifyWorldProperties(bool modifyWorldProperties) {
-		this->modifyWorldProperties = modifyWorldProperties;
-	}
-*/
-	Box2dParseData loadRubeDocument(json::value const& documentRoot);
+	Box2dParseData loadRubeDocument(Json::Value const& documentRoot);
 
 private:
-	using ValueTypeChecker = bool (*)(json::value const&);
+	std::string valueTypeToString(Json::Value const& value);
 
-//	b2Vec2 offset;
-//	bool modifyWorldProperties;
+	Json::Value lookupValue(Json::Value const& value, std::string const& key, Json::ValueType const& valueType);
 
-	json::value getDefaultValue(ValueTypeChecker checker);
+	double getNumber(Json::Value const& value, std::string const& key);
 
-	std::string valueTypeToString(json::value const& value);
-	json::value lookupValue(json::value const& value, std::string const& key, ValueTypeChecker checker);
+	int getInt(Json::Value const& value, std::string const& key);
 
-	double getNumber(json::value const& value, std::string const& key);
+	bool getBool(Json::Value const& value, std::string const& key);
 
-	int getInt(json::value const& value, std::string const& key);
+	std::string getString(Json::Value const& value, std::string const& key);
 
-	bool getBool(json::value const& value, std::string const& key);
+	b2Vec2 getb2Vec2(Json::Value const& root, std::string const& key);
 
-	std::string getString(json::value const& value, std::string const& key);
+	std::vector<b2Vec2> getb2Vec2s(Json::Value const& root, std::string const& key);
 
-	b2Vec2 getb2Vec2(json::value const& root, std::string const& key);
+	void loadCircleShape(b2CircleShape &circleShape, Json::Value const& circleRoot);
 
-	std::vector<b2Vec2> getb2Vec2s(json::value const& root, std::string const& key);
+	void loadPolygonShape(b2PolygonShape &polygonShape, Json::Value const& polygonRoot);
 
-	void loadCircleShape(b2CircleShape &circleShape, json::value const& circleRoot);
+	void loadChainShape(b2ChainShape &chainShape, Json::Value const& chainRoot);
 
-	void loadPolygonShape(b2PolygonShape &polygonShape, json::value const& polygonRoot);
+	FixtureParseData loadBox2dFixture(Json::Value const& fixtureRoot);
 
-	void loadChainShape(b2ChainShape &chainShape, json::value const& chainRoot);
-
-	FixtureParseData loadBox2dFixture(json::value const& fixtureRoot);
-
-	BodyParseData loadBox2dBody(json::value const& bodyRoot);
+	BodyParseData loadBox2dBody(Json::Value const& bodyRoot);
 
 	template <typename JointDef>
-	std::unique_ptr<JointDef> createBox2dJointDef(json::value const& jointRoot) {
+	std::unique_ptr<JointDef> createBox2dJointDef(Json::Value const& jointRoot) {
 		std::unique_ptr<JointDef> jointDef(new JointDef);
 
 // TODO: We can NOT set any bodies until their created... We need to resolve this.
@@ -96,15 +77,16 @@ private:
 		return jointDef;
 	}
 
-	JointParseData loadBox2dJoint(json::value const& jointRoot, Box2dParseData &box2dData);
+	JointParseData loadBox2dJoint(Json::Value const& jointRoot, Box2dParseData &box2dData);
 
-	void loadCustomProperty(std::unordered_map<std::string, boost::any> &map, json::value const& customProperty);
-	ImageParseData loadBox2dImage(json::value const& imageRoot);
+	void loadCustomProperty(std::unordered_map<std::string, boost::any> &map, Json::Value const& customProperty);
+	ImageParseData loadBox2dImage(Json::Value const& imageRoot);
 };
 
-// TODO This should be a member...
-// BodyParseData* lookupBody(std::string const &name, WorldParseData& parseData);
+}
+// Collapse
+using namespace rocket::box2d;
 
-}}
+}
 
 #endif

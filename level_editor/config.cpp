@@ -41,8 +41,8 @@ void Config::loadGameItems() {
         auto name = gameObjectValue["name"].asString();
         auto category = gameObjectValue["category"].asString();
         auto image = gameObjectValue["image"].asString();
-        std::size_t width = gameObjectValue["width"].asInt();
-        std::size_t height = gameObjectValue["height"].asInt();
+        int width = gameObjectValue["width"].asInt();
+        int height = gameObjectValue["height"].asInt();
 		gameObjects.push_back(GameObject {name, category, image, width, height});
     }
 }

@@ -29,7 +29,6 @@ private:
     Ui::MainWindow *ui;
     LevelEditor levelEditor;
     std::string filePath;
-    QGraphicsScene scene;
 	float scale;
 
     std::vector<std::unique_ptr<QMenu>> gameObjectGroups;
@@ -38,19 +37,20 @@ private:
 
     void setupToolbar();
     void updateTitle();
-    void updateScene();
-    void newLevel(LevelEditor const& levelEditor);
+    void setupEditorGraphics();
+    void newLevel(LevelEditor && levelEditor);
     void loadGameItems();
-
-	void addGameObject(GameObject const& go, int x, int y);
 
 private slots:
     void newLevel();
     void openLevel();
     void saveLevel();
     void exit();
+	void undo();
+	void redo();
+
     void gameObjectPicked();
-	void sceneClicked(QPointF position);
+	void sceneClicked(QMouseEvent* event, QPointF position);
 };
 
 #endif // MAINWINDOW_H

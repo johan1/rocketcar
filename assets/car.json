@@ -13,40 +13,7 @@
          [
             
             {
-               "density" : 0.750,
-               "friction" : 0.8000000119209290,
-               "name" : "carupper",
-               "polygon" : 
-               {
-                  "vertices" : 
-                  {
-                     "x" : 
-                     [
-                        1.208260059356689,
-                        0.6846150159835815,
-                        0.419759988784790,
-                        -0.4459980130195618,
-                        -0.7959259748458862,
-                        -1.103929996490479,
-                        -1.367390036582947
-                     ],
-                     "y" : 
-                     [
-                        0.3468869924545288,
-                        0.8653119802474976,
-                        0.9186699986457825,
-                        1.001880049705505,
-                        0.9778829813003540,
-                        0.8607249855995178,
-                        0.4947359859943390
-                     ]
-                  }
-               },
-               "restitution" : 0.1000000014901161
-            },
-            
-            {
-               "density" : 0.750,
+               "density" : 21.25218582153320,
                "friction" : 0.8000000119209290,
                "name" : "carlower",
                "polygon" : 
@@ -78,51 +45,54 @@
                   }
                },
                "restitution" : 0.1000000014901161
+            },
+            
+            {
+               "density" : 21.25218582153320,
+               "friction" : 0.8000000119209290,
+               "name" : "carupper",
+               "polygon" : 
+               {
+                  "vertices" : 
+                  {
+                     "x" : 
+                     [
+                        1.208260059356689,
+                        0.6846150159835815,
+                        0.419759988784790,
+                        -0.4459980130195618,
+                        -0.7959259748458862,
+                        -1.103929996490479,
+                        -1.367390036582947
+                     ],
+                     "y" : 
+                     [
+                        0.3468869924545288,
+                        0.8653119802474976,
+                        0.9186699986457825,
+                        1.001880049705505,
+                        0.9778829813003540,
+                        0.8607249855995178,
+                        0.4947359859943390
+                     ]
+                  }
+               },
+               "restitution" : 0.1000000014901161
             }
          ],
          "linearVelocity" : 0,
-         "massData-I" : 5.389615058898926,
+         "massData-I" : 152.7214813232422,
          "massData-center" : 
          {
-            "x" : -0.06040599942207336,
-            "y" : 0.1643623560667038
+            "x" : -0.06040599569678307,
+            "y" : 0.1643623709678650
          },
-         "massData-mass" : 3.529048681259155,
+         "massData-mass" : 100.0,
          "name" : "car",
          "position" : 
          {
             "x" : 0.3368092179298401,
             "y" : 2.320669651031494
-         },
-         "type" : 2
-      },
-      
-      {
-         "angle" : 0,
-         "angularVelocity" : 0,
-         "awake" : true,
-         "fixture" : 
-         [
-            
-            {
-               "circle" : 
-               {
-                  "center" : 0,
-                  "radius" : 0.4391508996486664
-               },
-               "density" : 4.0,
-               "friction" : 1,
-               "name" : "frontwheel"
-            }
-         ],
-         "linearVelocity" : 0,
-         "massData-I" : 0.2336872369050980,
-         "massData-mass" : 2.423468828201294,
-         "name" : "frontwheel",
-         "position" : 
-         {
-            "x" : 1.954950332641602,
-            "y" : 2.039184808731079
          },
          "type" : 2
       },
@@ -152,6 +122,36 @@
          "position" : 
          {
             "x" : -0.9732189178466797,
+            "y" : 2.039184808731079
+         },
+         "type" : 2
+      },
+      
+      {
+         "angle" : 0,
+         "angularVelocity" : 0,
+         "awake" : true,
+         "fixture" : 
+         [
+            
+            {
+               "circle" : 
+               {
+                  "center" : 0,
+                  "radius" : 0.4391508996486664
+               },
+               "density" : 4.0,
+               "friction" : 1,
+               "name" : "frontwheel"
+            }
+         ],
+         "linearVelocity" : 0,
+         "massData-I" : 0.2336872369050980,
+         "massData-mass" : 2.423468828201294,
+         "name" : "frontwheel",
+         "position" : 
+         {
+            "x" : 1.954950332641602,
             "y" : 2.039184808731079
          },
          "type" : 2
@@ -200,6 +200,16 @@
    [
       
       {
+         "int" : 6000,
+         "name" : "max_fuel"
+      },
+      
+      {
+         "int" : 5,
+         "name" : "max_life"
+      },
+      
+      {
          "float" : -4.0,
          "name" : "actor_view_lower_x"
       },
@@ -220,6 +230,16 @@
       },
       
       {
+         "float" : 1.0,
+         "name" : "hit_threshold"
+      },
+      
+      {
+         "float" : 100.0,
+         "name" : "rocket_power"
+      },
+      
+      {
          "float" : -1.0,
          "name" : "viewport_height"
       },
@@ -230,8 +250,27 @@
       },
       
       {
+         "float" : 100.0,
+         "name" : "wheel_power"
+      },
+      
+      {
          "name" : "actor",
          "string" : "car"
+      },
+	  {
+         "name" : "roof_fixture",
+         "string" : "carupper"
+      },
+      
+      {
+         "name" : "wheel1",
+         "string" : "rearwheel"
+      },
+      
+      {
+         "name" : "wheel2",
+         "string" : "frontwheel"
       }
    ],
    "gravity" : 
@@ -281,7 +320,7 @@
             -0.5017944574356079,
             0.4958701133728027
          ],
-         "name" : "rearwheel",
+         "name" : "frontwheel",
          "opacity" : 1,
          "scale" : 1
       },
@@ -325,7 +364,7 @@
             -0.5017944574356079,
             0.4958701133728027
          ],
-         "name" : "frontwheel",
+         "name" : "rearwheel",
          "opacity" : 1,
          "scale" : 1
       },
@@ -381,55 +420,51 @@
       {
          "anchorA" : 
          {
-            "x" : 1.618139982223511,
-            "y" : -0.3086309432983398
+            "x" : 0.006729722023010254,
+            "y" : 0.0009651184082031250
          },
          "anchorB" : 
          {
-            "x" : 0.001029968261718750,
-            "y" : 0
+            "x" : 1.624870777130127,
+            "y" : -0.2805197238922119
          },
-         "bodyA" : 0,
-         "bodyB" : 1,
-         "enableMotor" : true,
-         "localAxisA" : 
-         {
-            "x" : 0,
-            "y" : 1
-         },
-         "maxMotorTorque" : 1,
+         "bodyA" : 2,
+         "bodyB" : 0,
+         "enableLimit" : false,
+         "enableMotor" : false,
+         "jointSpeed" : 0,
+         "lowerLimit" : 0,
+         "maxMotorTorque" : 0,
          "motorSpeed" : 0,
-         "name" : "frontwheel",
-         "springDampingRatio" : 0.07500000298023224,
-         "springFrequency" : 4.0,
-         "type" : "wheel"
+         "name" : "joint1",
+         "refAngle" : 0,
+         "type" : "revolute",
+         "upperLimit" : 0
       },
       
       {
          "anchorA" : 
          {
-            "x" : -1.310029983520508,
-            "y" : -0.3029899597167969
+            "x" : 0.003313899040222168,
+            "y" : 0.001865148544311523
          },
          "anchorB" : 
          {
-            "x" : -0.000221252441406250,
-            "y" : 0
+            "x" : -1.306714296340942,
+            "y" : -0.2796196937561035
          },
-         "bodyA" : 0,
-         "bodyB" : 2,
-         "enableMotor" : true,
-         "localAxisA" : 
-         {
-            "x" : 0,
-            "y" : 1
-         },
-         "maxMotorTorque" : 1,
+         "bodyA" : 1,
+         "bodyB" : 0,
+         "enableLimit" : false,
+         "enableMotor" : false,
+         "jointSpeed" : 0,
+         "lowerLimit" : 0,
+         "maxMotorTorque" : 0,
          "motorSpeed" : 0,
-         "name" : "rearwheel",
-         "springDampingRatio" : 0.07500000298023224,
-         "springFrequency" : 4.0,
-         "type" : "wheel"
+         "name" : "joint0",
+         "refAngle" : 0,
+         "type" : "revolute",
+         "upperLimit" : 0
       }
    ],
    "positionIterations" : 3,

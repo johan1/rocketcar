@@ -1,9 +1,7 @@
 #include "RubeParser.h"
 
-#include <cppjson/json.h>
 #include <Box2D/Box2D.h>
 
-// #include <type_traits>
 #include <algorithm>
 #include <cmath>
 
@@ -11,47 +9,26 @@ static const bool DO_LOG = false;
 
 namespace rocket { namespace box2d {
 
-using ValueTypeChecker = bool (*)(json::value const&);
-
-json::value RubeParser::getDefaultValue(ValueTypeChecker checker) {
-	if(DO_LOG) LOGD("getDefaultValue!");
-	if (checker == json::is_string) {
-		return json::value("");
-	} else if (checker == json::is_number) {
-		return json::value(0);
-	} else if (checker == json::is_bool) {
-		return json::value(false);
-	} else if (checker == json::is_object) {
-		return json::value(json::object());
-	} else if (checker == json::is_array) {
-		return json::value(json::array());
-	} else if (checker == json::is_null) {
-		return json::value(); // NULL
-	} else {
-	
-		throw RubeParserException(RubeParserException::Type::UnsupportedType, "Invalid type checker");
-	}
-}
-
-std::string RubeParser::valueTypeToString(json::value const& value) {
-	if (json::is_bool(value)) return "bool";
-	else if (json::is_string(value)) return "string";
-	else if (json::is_number(value)) return "number";
-	else if (json::is_object(value)) return "object";
-	else if (json::is_array(value)) return "array";
-	else if (json::is_null(value)) return "null";
+std::string RubeParser::valueTypeToString(Json::Value const& value) {
+	if (value.isBool()) return "bool";
+	else if (value.isString()) return "string";
+	else if (value.isNumeric()) return "number";
+	else if (value.isObject()) return "object";
+	else if (value.isArray()) return "array";
+	else if (value.isNull()) return "null";
 	else throw std::runtime_error("WTF!! RubeParser::valueTypeToString didn't find value type...");
 }
 
-json::value RubeParser::lookupValue(json::value const& value, std::string const& key, ValueTypeChecker checker) {
+Json::Value RubeParser::lookupValue(Json::Value const& value, std::string const& key, Json::ValueType const& valueType) {
 	if(DO_LOG) LOGD("lookupValue: " << key);
-	if (!json::has_key(value, key)) {
-		return getDefaultValue(checker);
+
+	if (!value.isMember(key)) {
+		return Json::Value(valueType);
 	}
 
 	auto ret = value[key];
 	// Check if correct type.
-	if (!checker(ret)) {
+	if (!ret.isConvertibleTo(valueType)) {
 		std::string msg = (boost::format("Unexpected type (%s) for key (%s)")
 				% valueTypeToString(ret) % key).str();
 		throw RubeParserException(RubeParserException::Type::UnexpectedValue, 
@@ -61,75 +38,75 @@ json::value RubeParser::lookupValue(json::value const& value, std::string const&
 	return ret;
 }
 
-double RubeParser::getNumber(json::value const& value, std::string const& key) {
-	auto ret = lookupValue(value, key, json::is_number);
-	return json::to_number(ret);
+double RubeParser::getNumber(Json::Value const& value, std::string const& key) {
+	auto ret = lookupValue(value, key, Json::ValueType::realValue);
+	return ret.asDouble();
 }
 
-int RubeParser::getInt(json::value const& value, std::string const& key) {
+int RubeParser::getInt(Json::Value const& value, std::string const& key) {
 	return lround(getNumber(value, key));
 }
 
-bool RubeParser::getBool(json::value const& value, std::string const& key) {
-	auto ret = lookupValue(value, key, json::is_bool);
-	return json::to_bool(ret);
+bool RubeParser::getBool(Json::Value const& value, std::string const& key) {
+	auto ret = lookupValue(value, key, Json::ValueType::booleanValue);
+	return ret.asBool();
 }
 
-std::string RubeParser::getString(json::value const& value, std::string const& key) {
-	auto ret = lookupValue(value, key, json::is_string);
-	return json::to_string(ret);
+std::string RubeParser::getString(Json::Value const& value, std::string const& key) {
+	auto ret = lookupValue(value, key, Json::ValueType::stringValue);
+	return ret.asString();
 }
 
-b2Vec2 RubeParser::getb2Vec2(json::value const& root, std::string const& key) {
-	if (json::has_key(root, key) && json::is_number(root[key])) {
-		double coord = json::to_number(root[key]);
+b2Vec2 RubeParser::getb2Vec2(Json::Value const& root, std::string const& key) {
+	if (root.isMember(key) && root[key].isNumeric()) {
+		double coord = root[key].asDouble();
 		return b2Vec2(coord, coord);
 	} else {
-		auto vecObject = lookupValue(root, key, json::is_object);
+		auto vecObject = lookupValue(root, key, Json::ValueType::objectValue);
 		float x = getNumber(vecObject, "x");
 		float y = getNumber(vecObject, "y");
 		return b2Vec2(x, y);
 	}
 }
 
-std::vector<b2Vec2> RubeParser::getb2Vec2s(json::value const& root, std::string const& key) {
+std::vector<b2Vec2> RubeParser::getb2Vec2s(Json::Value const& root, std::string const& key) {
 	std::vector<b2Vec2> b2Vec2s;
 
-	auto vectors = lookupValue(root, key, json::is_object);
+	auto vectors = lookupValue(root, key, Json::ValueType::objectValue);
 
-	auto xValues = lookupValue(vectors, "x", json::is_array);
-	for (size_t i = 0; i < json::size(xValues); ++i) {
-		b2Vec2s.push_back(b2Vec2(json::to_number(xValues[i]), 0.0f));
+	auto xValues = lookupValue(vectors, "x", Json::ValueType::arrayValue);
+	for (size_t i = 0; i < xValues.size(); ++i) {
+		b2Vec2s.push_back(b2Vec2(xValues[i].asDouble(), 0.0f));
 	}
-	auto yValues = lookupValue(vectors, "y", json::is_array);
-	for (size_t i = 0; i < json::size(yValues); ++i) {
-		b2Vec2s[i].y = json::to_number(yValues[i]);
+	auto yValues = lookupValue(vectors, "y", Json::ValueType::arrayValue);
+	for (size_t i = 0; i < yValues.size(); ++i) {
+		b2Vec2s[i].y = yValues[i].asDouble();
 	}
 
 	return b2Vec2s;
 }
 
-void RubeParser::loadCircleShape(b2CircleShape &circleShape, json::value const& circleRoot) {
+void RubeParser::loadCircleShape(b2CircleShape &circleShape, Json::Value const& circleRoot) {
 	if(DO_LOG) LOGD("Loading circle shape");
 
 	circleShape.m_p = getb2Vec2(circleRoot, "center");
 	circleShape.m_radius = getNumber(circleRoot, "radius");
 }
 
-void RubeParser::loadPolygonShape(b2PolygonShape &polygonShape, json::value const& polygonRoot) {
+void RubeParser::loadPolygonShape(b2PolygonShape &polygonShape, Json::Value const& polygonRoot) {
 	if (DO_LOG) if(DO_LOG) LOGD("Loading polygon shape");
 
 	auto vertices = getb2Vec2s(polygonRoot, "vertices");
 	polygonShape.Set(&(vertices[0]), vertices.size());
 }
 
-void RubeParser::loadChainShape(b2ChainShape &chainShape, json::value const& chainRoot) {
+void RubeParser::loadChainShape(b2ChainShape &chainShape, Json::Value const& chainRoot) {
 	if (DO_LOG) LOGD("Loading chain shape");
 
 	auto vertices = getb2Vec2s(chainRoot, "vertices");
 	
-	if (json::has_key(chainRoot, "hasNextVertex") || json::has_key(chainRoot, "hasPrevVertex") ||
-			json::has_key(chainRoot, "nextVertex") || json::has_key(chainRoot, "prevVertex")) {
+	if (chainRoot.isMember("hasNextVertex") || chainRoot.isMember("hasPrevVertex") ||
+			chainRoot.isMember("nextVertex") || chainRoot.isMember("prevVertex")) {
 		chainShape.CreateLoop(&(vertices[0]), vertices.size());
 
 		// TODO: I'm not convinced that this is intentional, however protocol allows specification of these
@@ -143,7 +120,7 @@ void RubeParser::loadChainShape(b2ChainShape &chainShape, json::value const& cha
 	}
 }
 
-FixtureParseData RubeParser::loadBox2dFixture(json::value const& fixtureRoot) {
+FixtureParseData RubeParser::loadBox2dFixture(Json::Value const& fixtureRoot) {
 	if (DO_LOG) LOGD("Loading fixture");
 
 	FixtureParseData fixtureData;
@@ -154,27 +131,28 @@ FixtureParseData RubeParser::loadBox2dFixture(json::value const& fixtureRoot) {
 	fixtureData.fixtureDef.density = getNumber(fixtureRoot, "density");
 	fixtureData.fixtureDef.isSensor = getBool(fixtureRoot, "sensor");
 
-	if (json::has_key(fixtureRoot, "filter-categoryBits")) {
+
+	if (fixtureRoot.isMember("filter-categoryBits")) {
 		fixtureData.fixtureDef.filter.categoryBits = getInt(fixtureRoot, "filter-categoryBits");
 	} else {
 		fixtureData.fixtureDef.filter.categoryBits = 1;
 	}
-	if (json::has_key(fixtureRoot, "filter-maskBits")) 	{
+	if (fixtureRoot.isMember("filter-maskBits")) 	{
 		fixtureData.fixtureDef.filter.categoryBits = getInt(fixtureRoot, "filter-maskBits");
 	} else {
 		fixtureData.fixtureDef.filter.categoryBits = 0xffff;
 	}
 	fixtureData.fixtureDef.filter.groupIndex = getInt(fixtureRoot, "filter-groupIndex");
 
-	if (json::has_key(fixtureRoot, "circle")) {
+	if (fixtureRoot.isMember("circle")) {
 		b2CircleShape *circleShape = new b2CircleShape;
 		fixtureData.shape = std::unique_ptr<b2Shape>(circleShape);
 		loadCircleShape(*circleShape, fixtureRoot["circle"]);
-	} else if (json::has_key(fixtureRoot, "polygon")) {
+	} else if (fixtureRoot.isMember("polygon")) {
 		b2PolygonShape *polygonShape = new b2PolygonShape;
 		fixtureData.shape = std::unique_ptr<b2Shape>(polygonShape);
 		loadPolygonShape(*polygonShape, fixtureRoot["polygon"]);
-	} else if (json::has_key(fixtureRoot, "chain")) {
+	} else if (fixtureRoot.isMember("chain")) {
 		b2ChainShape *chainShape = new b2ChainShape;
 		fixtureData.shape = std::unique_ptr<b2Shape>(chainShape);
 		loadChainShape(*chainShape, fixtureRoot["chain"]);
@@ -189,7 +167,7 @@ FixtureParseData RubeParser::loadBox2dFixture(json::value const& fixtureRoot) {
 	return fixtureData;
 }
 
-BodyParseData RubeParser::loadBox2dBody(json::value const& bodyRoot) {
+BodyParseData RubeParser::loadBox2dBody(Json::Value const& bodyRoot) {
 	if(DO_LOG) LOGD("Loading body");
 
 	BodyParseData bodyData;
@@ -210,15 +188,15 @@ BodyParseData RubeParser::loadBox2dBody(json::value const& bodyRoot) {
 	bodyData.massData.center = getb2Vec2(bodyRoot, "massData-center");
 	bodyData.massData.I = getNumber(bodyRoot, "massData-I");
 
-	auto fixtures = lookupValue(bodyRoot, "fixture", json::is_array);
-	for (size_t i = 0; i < json::size(fixtures); ++i) {
+	auto fixtures = lookupValue(bodyRoot, "fixture", Json::ValueType::arrayValue);
+	for (size_t i = 0; i < fixtures.size(); ++i) {
 		bodyData.fixtureDatas.push_back(loadBox2dFixture(fixtures[i]));
 	}
 
 	return bodyData;
 }
 
-JointParseData RubeParser::loadBox2dJoint(json::value const& jointRoot, Box2dParseData &box2dData)  {
+JointParseData RubeParser::loadBox2dJoint(Json::Value const& jointRoot, Box2dParseData &box2dData)  {
 	if(DO_LOG) LOGD("Loading joint");
 
 	JointParseData jointData;
@@ -232,7 +210,6 @@ JointParseData RubeParser::loadBox2dJoint(json::value const& jointRoot, Box2dPar
 		auto revJointDef = createBox2dJointDef<b2RevoluteJointDef>(jointRoot);
 		revJointDef->enableLimit = getBool(jointRoot, "enableLimit");
 		revJointDef->enableMotor = getBool(jointRoot, "enableMotor");
-		// revJointDef->jointSpeed = getNumber(jointRoot, "jointSpeed"); // TODO: What should joint speed do?
 		revJointDef->lowerAngle = getNumber(jointRoot, "lowerLimit");
 		revJointDef->maxMotorTorque = getNumber(jointRoot, "maxMotorTorque");
 		revJointDef->motorSpeed = getNumber(jointRoot, "motorSpeed");
@@ -278,10 +255,6 @@ JointParseData RubeParser::loadBox2dJoint(json::value const& jointRoot, Box2dPar
 		// Motor joints differs a bit...
 		std::unique_ptr<b2MotorJointDef> motorJointDef(new b2MotorJointDef);
 
-		// TODO: We can NOT set any bodies until they are created. We need to resolve this!!!
-//		motorJointDef->bodyA = parseData.bodies[getInt(jointRoot, "bodyA")].body;
-//		motorJointDef->bodyB = parseData.bodies[getInt(jointRoot, "bodyB")].body;
-
 		motorJointDef->collideConnected = getBool(jointRoot, "collideConnected");
 		motorJointDef->linearOffset = getb2Vec2(jointRoot, "linearOffset");
 		motorJointDef->maxForce = getNumber(jointRoot, "maxForce");
@@ -310,18 +283,18 @@ JointParseData RubeParser::loadBox2dJoint(json::value const& jointRoot, Box2dPar
 	return jointData;
 }
 
-void RubeParser::loadCustomProperty(std::unordered_map<std::string, boost::any> &map, json::value const& customProperty) {
+void RubeParser::loadCustomProperty(std::unordered_map<std::string, boost::any> &map, Json::Value const& customProperty) {
 	std::string name = getString(customProperty, "name");
 	
-	if (json::has_key(customProperty, "int")) {
+	if (customProperty.isMember("int")) {
 		map[name] = getInt(customProperty, "int");
-	} else if (json::has_key(customProperty, "float")) {
+	} else if (customProperty.isMember("float")) {
 		map[name] = getNumber(customProperty, "float");
-	} else if (json::has_key(customProperty, "string")) {
+	} else if (customProperty.isMember("string")) {
 		map[name] = getString(customProperty, "string");
-	} else if (json::has_key(customProperty, "vec2")) {
+	} else if (customProperty.isMember("vec2")) {
 		map[name] = getb2Vec2(customProperty, "vec2");
-	} else if (json::has_key(customProperty, "bool")) {
+	} else if (customProperty.isMember("bool")) {
 		map[name] = getBool(customProperty, "bool");
 	} else {
 		throw RubeParserException(RubeParserException::Type::UnsupportedType,
@@ -329,7 +302,7 @@ void RubeParser::loadCustomProperty(std::unordered_map<std::string, boost::any> 
 	}
 }
 
-ImageParseData RubeParser::loadBox2dImage(json::value const& imageRoot) {
+ImageParseData RubeParser::loadBox2dImage(Json::Value const& imageRoot) {
 	ImageParseData imageData;
 	imageData.name = getString(imageRoot, "name");
 	imageData.opacity = getNumber(imageRoot, "opacity");
@@ -343,10 +316,10 @@ ImageParseData RubeParser::loadBox2dImage(json::value const& imageRoot) {
 	imageData.filter = getInt(imageRoot, "filter");
 	imageData.flip = getBool(imageRoot, "flip");
 
-	if (json::has_key(imageRoot, "colorTint")) {
-		auto tintArr = lookupValue(imageRoot, "colorTint", json::is_array);
-		for (size_t i = 0; i < json::size(tintArr) && i < 4; ++i) {
-			imageData.colorTint[i] = static_cast<unsigned char>(json::to_number(tintArr[i]));
+	if (imageRoot.isMember("colorTint")) {
+		auto tintArr = lookupValue(imageRoot, "colorTint", Json::ValueType::arrayValue);
+		for (size_t i = 0; i < tintArr.size() && i < 4; ++i) {
+			imageData.colorTint[i] = static_cast<unsigned char>(tintArr[i].asInt());
 		}
 	} else {
 		imageData.colorTint[0] = 255;
@@ -355,15 +328,15 @@ ImageParseData RubeParser::loadBox2dImage(json::value const& imageRoot) {
 		imageData.colorTint[3] = 255;
 	}
 
-	auto customProperties = lookupValue(imageRoot, "customProperties", json::is_array);
-	for (size_t i = 0; i < json::size(customProperties); ++i) {
+	auto customProperties = lookupValue(imageRoot, "customProperties", Json::ValueType::arrayValue);
+	for (size_t i = 0; i < customProperties.size(); ++i) {
 		loadCustomProperty(imageData.customProperties, customProperties[i]);
 	}
 
 	return imageData;
 }
 
-Box2dParseData RubeParser::loadRubeDocument(json::value const& documentRoot) {
+Box2dParseData RubeParser::loadRubeDocument(Json::Value const& documentRoot) {
 	Box2dParseData parseData;
 
     parseData.positionIterations = getInt(documentRoot, "positionIterations");
@@ -376,57 +349,28 @@ Box2dParseData RubeParser::loadRubeDocument(json::value const& documentRoot) {
 	parseData.worldData.warmStarting = getBool(documentRoot, "warmStarting");
 	parseData.worldData.continuousPhysics = getBool(documentRoot, "continuousPhysics");
 	parseData.worldData.subStepping = getBool(documentRoot, "subStepping");
-/*	
-	if (modifyWorldProperties) {
-		world.SetGravity( getb2Vec2(documentRoot, "gravity") );
-		world.SetAllowSleeping( getBool(documentRoot, "allowSleep"));
-		world.SetAutoClearForces( getBool(documentRoot, "autoClearForces"));
-		world.SetWarmStarting( getBool(documentRoot, "warmStarting"));
-		world.SetContinuousPhysics( getBool(documentRoot, "continuousPhysics"));
-		world.SetSubStepping( getBool(documentRoot, "subStepping"));
-	}
-*/
 
-	auto bodies = lookupValue(documentRoot, "body", json::is_array);
-	for (size_t i = 0; i < json::size(bodies); ++i) {
+	auto bodies = lookupValue(documentRoot, "body", Json::ValueType::arrayValue);
+	for (size_t i = 0; i < bodies.size(); ++i) {
 		parseData.bodies.push_back(loadBox2dBody(bodies[i]));
-//		loadBox2dBody(world, bodies[i], parseData);
 	}
 
-	auto joints = lookupValue(documentRoot, "joint", json::is_array);
-	for (size_t i = 0; i < json::size(joints); ++i) {
+	auto joints = lookupValue(documentRoot, "joint", Json::ValueType::arrayValue);
+	for (size_t i = 0; i < joints.size(); ++i) {
 		parseData.joints.push_back(loadBox2dJoint(joints[i], parseData));
 	}
 
-	auto images = lookupValue(documentRoot, "image", json::is_array);
-	for (size_t i = 0; i < json::size(images); ++i) {
+	auto images = lookupValue(documentRoot, "image", Json::ValueType::arrayValue);
+	for (size_t i = 0; i < images.size(); ++i) {
 		parseData.images.push_back(loadBox2dImage(images[i]));
 	}
 
-	auto customProperties = lookupValue(documentRoot, "customProperties", json::is_array);
-	for (size_t i = 0; i < json::size(customProperties); ++i) {
+	auto customProperties = lookupValue(documentRoot, "customProperties", Json::ValueType::arrayValue);
+	for (size_t i = 0; i < customProperties.size(); ++i) {
 		loadCustomProperty(parseData.customProperties, customProperties[i]);
 	}
 
-/*
-	for (auto& bodyData : parseData.bodies) {
-		bodyData.body->SetTransform(bodyData.body->GetPosition() + offset, 0);
-	}
-*/
 	return parseData;
 }
-
-/*
-// Utility functions...
-BodyParseData* lookupBody(std::string const &name, Box2dParseData &box2dData) {
-	for (auto &bodyData : box2dData.bodies) {
-		if (bodyData.name == name) {
-			return &bodyData;
-		}
-	}
-	
-	return nullptr;
-}
-*/
 
 }}

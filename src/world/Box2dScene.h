@@ -2,7 +2,6 @@
 #define _ROCKETCAR_BOX2D_SCENE_H_
 
 #include <rocket/game2d/world/Camera.h>
-// #include <rocket/game2d/world/ParticleEmitter.h>
 #include <rocket/game2d/world/Renderable.h>
 #include <rocket/game2d/world/Scene.h>
 #include <rocket/game2d/world/Sprite.h>
@@ -98,6 +97,8 @@ public:
 	b2World& getBox2dWorld() {
 		return box2dWorld;
 	}
+
+	void removeAttachedObjects(b2Body const* body);
 
 	rocket::game2d::RenderObject* attachToBox2dBody(b2Body* body, std::shared_ptr<rocket::game2d::Renderable> const& renderable);
 

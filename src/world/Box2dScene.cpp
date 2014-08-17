@@ -5,7 +5,7 @@
 
 #include <rocket/game2d/Director.h>
 
-#include <rocket/util/Log.h>
+#include <rocket/Log.h>
 #include <rocket/game2d/world/Sprite.h>
 
 #include <glm/glm.hpp>
@@ -15,8 +15,6 @@
 #include <Box2D/Box2D.h>
 
 #include <iterator>
-
-#include <cppjson/json.h>
 
 #include <cmath>
 
@@ -52,7 +50,7 @@ std::function<glm::mat4(glm::vec4 const&)> gameProjectionFunction() {
 }
 
 Box2dScene::Box2dScene() : 
-		Scene(gameProjectionFunction()), box2dWorld(b2Vec2(0, -10.0f)), actor(nullptr), 
+		Scene(gameProjectionFunction()), box2dWorld(b2Vec2(0, -10.0f)), actor(nullptr),
 			cameraDistanceToActor(-8, 4, -4, 4), cameraSpeed(1.0f) {
 
 	setZRenderOrder(true);
@@ -176,7 +174,6 @@ void Box2dScene::updateImpl() {
 		// If body is not sleeping we should update bodyobject position.
 		if (attachInfo.body->IsAwake()) {
 			auto bodyObject = attachInfo.emptyObject;
-			// auto oldPos = bodyObject->getPosition();
 
 			auto bodyPos = attachInfo.body->GetPosition();
 			bodyObject->setPosition(glm::vec3(bodyPos.x, bodyPos.y, 0.0f));
@@ -204,14 +201,12 @@ void Box2dScene::updateCameraPosition() {
 	auto actorDisty = actorPos.y - cameraPos.y;
 
 	if (actorDistx < cameraDistanceToActor[0]) {
-//		auto dx = std::max(actorDistx - cameraDistanceToActor[0], -cameraSpeed); // (dx < 0)
 		auto dx = actorDistx - cameraDistanceToActor[0];
 		cameraPos.x += dx; // i.e. cameraPos.x = actorPos.x - cameraDistanceToActor[0].
 	} else if (actorDistx > cameraDistanceToActor[1]) {
 		if (cameraSpeed < actorDistx - cameraDistanceToActor[1]) {
 			LOGE("We need to go faster...");
 		}
-//		auto dx = std::min(actorDistx - cameraDistanceToActor[1], cameraSpeed); // (dx > 0)
 		auto dx = actorDistx - cameraDistanceToActor[1];
 		cameraPos.x += dx; // i.e. cameraPos.x = actorPos.x - cameraDistanceToActor[1];
 	}
@@ -224,24 +219,23 @@ void Box2dScene::updateCameraPosition() {
 		cameraPos.y += dy; // i.e. cameraPos.y = actorPos.y - cameraDistanceToActor[3];
 	}
 	getCamera().setPosition(cameraPos);
+}
 
-/*
-	float dx = actorPos.x - cameraPos.x;
-	if (dx < cameraDistanceToActor[0]) { // dx < -8
-		cameraPos.x = actorPos.x - cameraDistanceToActor[0];
-	} else if (dx > cameraDistanceToActor[1]) {
-		cameraPos.x = actorPos.x - cameraDistanceToActor[1];
+void Box2dScene::removeAttachedObjects(b2Body const* body) {
+	// TODO: We should be able to use decltype here...
+
+	std::vector<RenderObject*> renderObjects;
+	for (auto entry : attachedObjects) {
+		if (entry.second.body == body) {
+			remove(entry.second.emptyObject);
+			remove(entry.second.attachedObject);
+			renderObjects.push_back(entry.first);
+		}
 	}
 
-
-	float dy = actorPos.y - cameraPos.y;
-	if (dy < cameraDistanceToActor[2]) {
-		cameraPos.y = actorPos.y - cameraDistanceToActor[2];
-	} else if (dy > cameraDistanceToActor[3]) {
-		cameraPos.y = actorPos.y - cameraDistanceToActor[3];
+	for (auto ro : renderObjects) {
+		attachedObjects.erase(ro);
 	}
-	getCamera()->setPosition(cameraPos);
-*/
 }
 
 rocket::game2d::RenderObject* Box2dScene::attachToBox2dBody(b2Body* body, std::shared_ptr<rocket::game2d::Renderable> const& renderable) {

@@ -1,0 +1,7 @@
+{
+	"available_cars" :
+	[
+		"car.json",
+		"car2.json"
+	]
+}

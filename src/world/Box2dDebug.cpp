@@ -1,7 +1,7 @@
 #include "Box2dDebug.h"
 
 #include <rocket/game2d/world/Camera.h>
-#include <rocket/util/Log.h>
+#include <rocket/Log.h>
 
 #include <Box2D/Box2D.h>
 
@@ -185,7 +185,7 @@ void Box2dDebug::DrawTransform(const b2Transform& xf) {
 	DrawSegment(p1, p2, b2Color(0, 1, 0));
 }
 
-void Box2dDebug::render(rocket::graphics::Canvas &canvas) {
+void Box2dDebug::renderImpl(rocket::graphics::Canvas &canvas) {
 	this->canvas = &canvas;
 	
 	drawCount = 0;
@@ -193,11 +193,9 @@ void Box2dDebug::render(rocket::graphics::Canvas &canvas) {
 
 	auto& mvpMatrix = canvas.getMvpMatrix();
 	auto mvpInverse = glm::inverse(mvpMatrix); 
-	// TODO: Not correct or efficient, we need proper 3d bounding boxes. However can't be bothered right now
-	// auto lowerLeft = camera.unproject(glm::vec3(-1, -1, 0));
-	// auto upperRight = camera.unproject(glm::vec3(1, 1, 0));
-	auto lowerLeft = mvpInverse*glm::vec4(-1, -1, 0, 1);
-	auto upperRight = mvpInverse*glm::vec4(1, 1, 0, 1);
+
+	auto lowerLeft = mvpInverse * glm::vec4(-1, -1, 0, 1);
+	auto upperRight = mvpInverse * glm::vec4(1, 1, 0, 1);
 
 	gameView = glm::vec4(lowerLeft.x, upperRight.x, lowerLeft.y, upperRight.y);
 
@@ -212,8 +210,6 @@ void Box2dDebug::render(rocket::graphics::Canvas &canvas) {
 
 	glDisable(GL_BLEND);
 	glDepthMask(true);
-
-//	LOGD(boost::format("Drawed frame, %d objects drawn, %d objects ignored") % drawCount % ignoreCount);
 }
 
 }

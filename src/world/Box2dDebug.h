@@ -5,6 +5,7 @@
 #include <Box2D/Dynamics/b2World.h>
 
 #include <rocket/graphics/Canvas.h>
+#include <rocket/game2d/world/Renderable.h>
 
 #include <glm/glm.hpp>
 
@@ -12,16 +13,14 @@
 
 namespace rocketcar {
 
-class Box2dDebug : private b2Draw {
+class Box2dDebug : public rocket::Renderable, private b2Draw {
 public:
-	Box2dDebug(std::shared_ptr<b2World> const& world) : world(world), alpha(0.25f) {
+	Box2dDebug(b2World* world) : world(world), alpha(0.25f) {
 		SetFlags(e_shapeBit | e_jointBit | e_aabbBit | e_pairBit | e_centerOfMassBit);
 	}
 
-	void render(rocket::graphics::Canvas &canvas);
-
 private:
-	std::shared_ptr<b2World> world;
+	b2World* world;
 	rocket::graphics::Canvas *canvas;
 
 	int drawCount;
@@ -32,6 +31,8 @@ private:
 	float alpha;
 
 	std::vector<glm::vec4> glmVertices;
+
+	virtual void renderImpl(rocket::graphics::Canvas &canvas);
 
 	// Fills glmVertices with vertices of a polygon
 	bool verticesInView(const b2Vec2* vertices, int32 vertexCount);

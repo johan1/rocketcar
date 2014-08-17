@@ -3,11 +3,11 @@
 
 #include <rocket/game2d/Director.h>
 #include <rocket/resource/ResourceId.h>
-#include <cppjson/json.h>
+#include <json/json.h>
 
 namespace rocketcar {
 
-json::value loadJson(rocket::resource::ResourceId const& resourceId);
+Json::Value loadJson(rocket::resource::ResourceId const& resourceId);
 
 };
 

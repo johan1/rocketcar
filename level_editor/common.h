@@ -13,8 +13,8 @@ struct GameObject {
     std::string name;
     std::string category;
     std::string imagePath;
-    std::size_t width;
-    std::size_t height;
+	int width;
+	int height;
 };
 
 #endif // COMMON_H

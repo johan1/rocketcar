@@ -21,7 +21,7 @@ namespace rocketcar {
 
 class LevelGroup : public rocket::game2d::SceneGroup {
 public:
-	LevelGroup();
+	LevelGroup(); // TODO: We should add some parameters here, car source and level source.
 
 private:
 	rocket::box2d::Box2dParseData rocketCarBuildData;

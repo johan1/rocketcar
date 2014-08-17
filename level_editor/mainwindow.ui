@@ -43,7 +43,15 @@
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+    <addaction name="actionUndo"/>
+    <addaction name="actionRedo"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuEdit"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -94,6 +102,22 @@
     <string>Ctrl+O</string>
    </property>
   </action>
+  <action name="actionUndo">
+   <property name="text">
+    <string>Undo</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Z</string>
+   </property>
+  </action>
+  <action name="actionRedo">
+   <property name="text">
+    <string>Redo</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+Z</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
@@ -102,7 +126,7 @@
    <extends>QGraphicsView</extends>
    <header>editorgraphicsview.h</header>
    <slots>
-    <signal>sceneClicked(QPointF)</signal>
+    <signal>sceneClicked(QMouseEvent*,QPointF)</signal>
    </slots>
   </customwidget>
  </customwidgets>
@@ -174,13 +198,45 @@
   </connection>
   <connection>
    <sender>graphicsView</sender>
-   <signal>sceneClicked(QPointF)</signal>
+   <signal>sceneClicked(QMouseEvent*,QPointF)</signal>
    <receiver>MainWindow</receiver>
-   <slot>sceneClicked(QPointF)</slot>
+   <slot>sceneClicked(QMouseEvent*,QPointF)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>293</x>
      <y>250</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>293</x>
+     <y>246</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionUndo</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>undo()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>293</x>
+     <y>246</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionRedo</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>redo()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
      <x>293</x>
@@ -194,6 +250,8 @@
   <slot>openLevel()</slot>
   <slot>saveLevel()</slot>
   <slot>exit()</slot>
-  <slot>sceneClicked(QPointF)</slot>
+  <slot>sceneClicked(QMouseEvent*,QPointF)</slot>
+  <slot>undo()</slot>
+  <slot>redo()</slot>
  </slots>
 </ui>

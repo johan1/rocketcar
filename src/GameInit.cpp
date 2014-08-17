@@ -12,6 +12,7 @@
 // #include "world/Box2dRenderer.h"
 
 #include "MainMenuGroup.h"
+#include "CarPickerGroup.h"
 
 using namespace rocketcar;
 using namespace rocket::resource;
@@ -25,7 +26,9 @@ void gameInit() {
 	RendererManager::getInstance().setRenderer<Text>(std::unique_ptr<Renderer<Text>>(new TextRenderer()));
 	RendererManager::getInstance().setRenderer<b2World>(std::unique_ptr<Renderer<b2World>>(new Box2dRenderer()));
 */
-	Director::getDirector().addSceneGroup(std::make_shared<MainMenuGroup>());
+
+	Director::getDirector().addSceneGroup(std::make_shared<CarPickerGroup>());
+//	Director::getDirector().addSceneGroup(std::make_shared<MainMenuGroup>());
 //	Director::getDirector().addSceneGroup(std::make_shared<LevelGroup>());
 
 /*

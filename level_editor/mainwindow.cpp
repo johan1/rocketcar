@@ -5,6 +5,7 @@
 
 #include <QFileDialog>
 #include <QGraphicsItem>
+#include <QMouseEvent>
 #include <QWidget>
 
 // For logging.
@@ -19,10 +20,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     setupToolbar();
 
-    ui->graphicsView->setScene(&scene);
-
     updateTitle();
-    updateScene();
+    setupEditorGraphics();
 }
 
 void MainWindow::setupToolbar() {
@@ -47,7 +46,7 @@ void MainWindow::setupToolbar() {
     }
 }
 
-// TODO: When we make introduce shortcuts for picking the game object we might need to change this...
+// TODO: When we introduce shortcuts for picking the game object we might need to change this...
 void MainWindow::gameObjectPicked() {
     auto goAction = dynamic_cast<QAction*>(sender());
     selectedGameObject = const_cast<GameObject const*>(static_cast<GameObject*>(goAction->data().value<void*>())); // Follows from horrible shit!
@@ -56,7 +55,7 @@ void MainWindow::gameObjectPicked() {
     static_cast<QMenu*>(goAction->parentWidget())->menuAction()->setIcon(
             QIcon(QString::fromStdString(Config::getInstance().getAssetsPath() + "/" + selectedGameObject->imagePath)));
 
-    ui->graphicsView->setCursor(QCursor(QPixmap(QString::fromStdString(getImagePath(*selectedGameObject)))));
+	ui->graphicsView->setCurrentGameObject(selectedGameObject);
 }
 
 void MainWindow::exit() {
@@ -66,14 +65,14 @@ void MainWindow::exit() {
 void MainWindow::newLevel() {
     NewLevelDialog nld;
     if (nld.exec()) {
-        newLevel(nld.getEditor());
+        newLevel(std::move(nld.getEditor()));
     }
 }
 
-void MainWindow::newLevel(LevelEditor const& editor) {
-    levelEditor = editor;
+void MainWindow::newLevel(LevelEditor && editor) {
+    levelEditor = std::move(editor);
     updateTitle();
-    updateScene();
+    setupEditorGraphics();
 }
 
 void MainWindow::openLevel() {
@@ -82,7 +81,7 @@ void MainWindow::openLevel() {
     if (!filePath.empty()) {
         levelEditor = LevelEditor(filePath);
         updateTitle();
-        updateScene();
+        setupEditorGraphics();
     }
 }
 
@@ -103,51 +102,44 @@ void MainWindow::saveLevel() {
     }
 }
 
-void MainWindow::sceneClicked(QPointF position) {
+void MainWindow::undo() {
+	std::cout << "UNDO" << std::endl;
+	levelEditor.undo();
+    ui->graphicsView->update();
+}
+
+void MainWindow::redo() {
+	std::cout << "REDO" << std::endl;
+	levelEditor.redo();
+    ui->graphicsView->update();
+}
+
+void MainWindow::sceneClicked(QMouseEvent* event, QPointF position) {
+	float x;
+	float y;
 	if (selectedGameObject) {
-		auto x = std::floor(position.x() -
+		x = std::floor(position.x() -
 				static_cast<float>(selectedGameObject->width)/2.0f + 0.5f);
-		auto y = std::floor(-position.y() -
+		y = std::floor(-position.y() -
 				static_cast<float>(selectedGameObject->height)/2.0f + 0.5f);
-		levelEditor.addTile(selectedGameObject->name, x, y);
-
-		addGameObject(*selectedGameObject, x, y);
-    	ui->graphicsView->update();
+	} else {
+		x = std::floor(position.x());
+		y = std::floor(-position.y());
 	}
+
+	if (event->button() == Qt::RightButton) {
+		levelEditor.removeGameObjectAtPosition(x, y);
+	} else if (selectedGameObject && event->button() == Qt::LeftButton) {
+		levelEditor.addGameObject(*selectedGameObject, x, y);
+	} else {
+		return;
+	}
+
+    ui->graphicsView->update();
 }
 
-void MainWindow::addGameObject(GameObject const& go, int x, int y) {
-	auto graphicsItem =
-		scene.addPixmap(QPixmap(QString::fromStdString(getImagePath(go))));
-	graphicsItem->setPos(x, -y - static_cast<float>(go.height));
-	graphicsItem->setScale(1.0f/scale);
-}
-
-void MainWindow::updateScene() {
-    scene.clear();
-    scene.setSceneRect(0, -levelEditor.getHeight()/2.0f, levelEditor.getWidth(), levelEditor.getHeight());
-
-    QPen pen(QColor(0, 0, 255));
-    pen.setStyle(Qt::DashLine);
-
-    // Let's draw grid...
-    for (double x = 0.0; x < levelEditor.getWidth(); x += 1.0) {
-        scene.addLine(x, -levelEditor.getHeight()/2.0f, x, levelEditor.getHeight()/2.0f, pen);
-    }
-    for (double y = -static_cast<double>(levelEditor.getHeight())/2.0; y < levelEditor.getHeight()/2.0; y += 1.0) {
-		if (y == 0) {
-        	scene.addLine(0, y, levelEditor.getWidth(), y, QPen(QColor(255, 0 ,0)));
-		} else {
-        	scene.addLine(0, y, levelEditor.getWidth(), y, pen);
-		}
-    }
-
-	for (auto& tile : levelEditor.getTiles()) {
-		auto go = lookupGameObject(tile.name);
-		if (go) {
-			addGameObject(*go, tile.position.first, tile.position.second);
-		}
-	}
+void MainWindow::setupEditorGraphics() {
+	levelEditor.setGraphicsView(*ui->graphicsView);
 
     QTransform M;
     M.scale(scale, scale);
@@ -159,7 +151,6 @@ void MainWindow::updateTitle() {
     setWindowTitle(QString::fromStdString(levelEditor.getName() + " - LevelEditor"));
 }
 
-MainWindow::~MainWindow()
-{
+MainWindow::~MainWindow() {
     delete ui;
 }

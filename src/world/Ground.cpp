@@ -1,5 +1,5 @@
 #include "Ground.h"
-#include <rocket/util/Log.h>
+#include <rocket/Log.h>
 
 using namespace rocket::glutils;
 using namespace rocket::graphics;

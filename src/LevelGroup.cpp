@@ -1,7 +1,7 @@
 #include "LevelGroup.h"
 #include "world/Box2dScene.h"
 
-#include <rocket/util/Log.h>
+#include <rocket/Log.h>
 #include <rocket/game2d/Director.h>
 #include <rocket/game2d/world/Scene.h>
 #include <rocket/game2d/world/Sprite.h>
@@ -11,6 +11,8 @@
 #include <rocket/game2d/scene/ControllerScene.h>
 #include <rocket/util/Geometry.h>
 
+#include "GameState.h"
+#include "MainMenuGroup.h"
 #include "WorldGenerator.h"
 #include "world/Ground.h"
 
@@ -47,8 +49,14 @@ LevelGroup::LevelGroup() {
 			RGBAColor(0xff0000ff), RGBAColor(0x40202080));
 
 	std::shared_ptr<ControllerScene> controllerScene = std::make_shared<ControllerScene>(1);
-	controllerScene->addButton(button_id::BUTTON1, AABox(createPoint(-1, -1), createPoint(0, 1)));
-	controllerScene->addButton(button_id::BUTTON2, AABox(createPoint(0, -1), createPoint(1, 1)));
+	auto button1 = controllerScene->addButton(button_id::BUTTON1);
+	button1->setPosition(glm::vec3(-0.5, 0, 0));
+	button1->setDimension(glm::vec3(1, 1, 1));
+
+	auto button2 = controllerScene->addButton(button_id::BUTTON2);
+	button2->setPosition(glm::vec3(0.5, 0, 0));
+	button2->setDimension(glm::vec3(1, 1, 1));
+
 	addScene(controllerScene);
 
 	postRenderer = std::make_shared<CircleFadeOut>();
@@ -61,7 +69,7 @@ LevelGroup::LevelGroup() {
 
 	// Loading rocket car data from file.
 	RubeParser rubeParser;
-	auto doc = loadJson(ResourceId("car2.json"));
+	auto doc = loadJson(ResourceId(GameState::getInstance().getCarSource()));
 	rocketCarBuildData = rubeParser.loadRubeDocument(doc);
 
 	loadRocketCar(true);
@@ -93,7 +101,7 @@ void LevelGroup::loadHud() {
 	energyBarNode = hudScene->add(hud.energyBar, false);
 	energyBarNode->setPosition(glm::vec3(7.0f, 0, 0));
 
-	hudScene->setOnProjectionChangeObserver([this] () { // Well this is not OK. or is it?, nope
+	hudScene->addOnProjectionChangedObserver([this] () { // Well this is not OK. or is it?, nope
 		auto topRightCoord = hudScene->unproject(glm::vec3(1.0f, 1.0f, 0.0f));
 		energyBarNode->setPosition(glm::vec3(topRightCoord.x - 6.0f, topRightCoord.y - 1.5f, 0));
 	});
@@ -361,6 +369,13 @@ bool LevelGroup::onControllerEvent(rocket::input::ControllerEvent const& ce) {
 		} else {
 			rocketCar.applyRocket = false;
 		}
+	} else if (ce.getButtonId() == button_id::DEBUG_RELOAD && ce.getValue() != 0) {
+		LOGD("Reloading...");
+		Director::getDirector().removeSceneGroup(this);
+		Director::getDirector().addSceneGroup(std::make_shared<LevelGroup>());
+	} else if (ce.getButtonId() == button_id::BUTTON_BACK && ce.getValue() != 0) {
+		Director::getDirector().removeSceneGroup(this);
+		Director::getDirector().addSceneGroup(std::make_shared<MainMenuGroup>());
 	}
 
 	return true;
