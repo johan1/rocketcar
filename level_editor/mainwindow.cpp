@@ -26,6 +26,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 void MainWindow::setupToolbar() {
     // QMenu* menu
+    std::cout << "Number of categories: " << Config::getInstance().getCategories().size() << std::endl;
     for (auto const& category : Config::getInstance().getCategories()) {
         auto menuPtr = new QMenu(QString::fromStdString(category.name));
         gameObjectGroups.emplace_back(menuPtr);

@@ -13,11 +13,11 @@
 
 #include "GameState.h"
 #include "MainMenuGroup.h"
-#include "WorldGenerator.h"
-#include "world/Ground.h"
 
 #include "BackgroundAtlas.h"
 #include "ParallaxScene.h"
+
+#include "LevelLoader.h"
 
 #include <rocket/game2d/world/Sprite.h>
 #include <rocket/game2d/world/ParticleEmitter.h>
@@ -87,6 +87,7 @@ LevelGroup::LevelGroup() {
 		onPostSolveContact(contact, impulse);
 	});
 
+	addScene(bgScene);
 	addScene(box2dScene);
 
 	loadHud();
@@ -109,49 +110,53 @@ void LevelGroup::loadHud() {
 }
 
 void LevelGroup::loadLevel() {
+	levelData = LevelLoader::getInstance().loadLevel(*box2dScene, *bgScene); // TODO: Add resource id for level descriptor
+
+		
+
 	// Generate ground. TODO: This should be done as a rube document, and not auto generated...
-	WorldGenerator levelGenerator;
-	auto groundData = levelGenerator.generateTerrain(box2dScene->getBox2dWorld());
+//	WorldGenerator levelGenerator;
+//	auto groundData = levelGenerator.generateTerrain(box2dScene->getBox2dWorld());
+//
+//	auto ground = std::make_shared<Ground>(groundData.vecs, 32.0/48.0f, ImageId(ResourceId("images/grass.png")));
+//	auto groundObject = box2dScene->add(ground, false);
+//	groundObject->move(glm::vec3(0, 0, -8));
 
-	auto ground = std::make_shared<Ground>(groundData.vecs, 32.0/48.0f, ImageId(ResourceId("images/grass.png")));
-	auto groundObject = box2dScene->add(ground, false);
-	groundObject->move(glm::vec3(0, 0, -8));
+//	groundFixtures.push_back(groundData.fixture);
 
-	groundFixtures.push_back(groundData.fixture);
-
-	// Bg. We should refactor this
-	// bgScene = std::make_shared<ParallaxScene>(box2dScene->getCamera());
-	BackgroundAtlas bgAtlas(ResourceId("images/bg_atlas.png"));
-	float pieceSize = 4.0f;
-	for (float x = -6; x < 1000.0f; x += pieceSize) {
-		for (float y = -10.5f * pieceSize; y < 10.5f * pieceSize; y += pieceSize) {
-			if (y < -pieceSize * 0.5f) {
-				bgScene->add( bgAtlas.getDirtPiece(), true)->setPosition(glm::vec3(x, y, -10.0f));
-			} else if (y < pieceSize * 0.5f) {
-				bgScene->add( bgAtlas.getGroundPiece(), true)->setPosition(glm::vec3(x, y, -10.0f));
-			} else if (y < pieceSize * 1.5) {
-				bgScene->add( bgAtlas.getGroundSkyPiece(), true)->setPosition(glm::vec3(x, y, -10.0f));
-			} else if (y < pieceSize * 4.5f) {
-				bgScene->add( bgAtlas.getSkyPiece(), true)->setPosition(glm::vec3(x, y, -10.0f));
-			} else if (y < pieceSize * 5.5f) {
-				bgScene->add( bgAtlas.getSkySpacePiece(), true)->setPosition(glm::vec3(x, y, -10.0f));
-			} else {
-				bgScene->add( bgAtlas.getSpacePiece(), true)->setPosition(glm::vec3(x, y, -10.0f));
-			}
-		}
-	}
-	addScene(bgScene);
+//	// Bg. We should refactor this
+//	// bgScene = std::make_shared<ParallaxScene>(box2dScene->getCamera());
+//	BackgroundAtlas bgAtlas(ResourceId("images/bg_atlas.png"));
+//	float pieceSize = 4.0f;
+//	for (float x = -6; x < 1000.0f; x += pieceSize) {
+//		for (float y = -10.5f * pieceSize; y < 10.5f * pieceSize; y += pieceSize) {
+//			if (y < -pieceSize * 0.5f) {
+//				bgScene->add( bgAtlas.getDirtPiece(), true)->setPosition(glm::vec3(x, y, -10.0f));
+//			} else if (y < pieceSize * 0.5f) {
+//				bgScene->add( bgAtlas.getGroundPiece(), true)->setPosition(glm::vec3(x, y, -10.0f));
+//			} else if (y < pieceSize * 1.5) {
+//				bgScene->add( bgAtlas.getGroundSkyPiece(), true)->setPosition(glm::vec3(x, y, -10.0f));
+//			} else if (y < pieceSize * 4.5f) {
+//				bgScene->add( bgAtlas.getSkyPiece(), true)->setPosition(glm::vec3(x, y, -10.0f));
+//			} else if (y < pieceSize * 5.5f) {
+//				bgScene->add( bgAtlas.getSkySpacePiece(), true)->setPosition(glm::vec3(x, y, -10.0f));
+//			} else {
+//				bgScene->add( bgAtlas.getSpacePiece(), true)->setPosition(glm::vec3(x, y, -10.0f));
+//			}
+//		}
+//	}
+//	addScene(bgScene); // WTF is this added already?
 
 	// Boxes...
-	auto b2Vecs = groundData.vecs;
-	auto boxMetas = levelGenerator.generateBoxes(
-			box2dScene->getBox2dWorld(), b2Vecs[1].x, b2Vecs[b2Vecs.size()-1].x, 12.0f, 20.0f, 0.5f, 5.0f, 200);
-	for (auto boxMeta : boxMetas) {
-		auto sprite = std::make_shared<Sprite>(ImageId(ResourceId("images/box.png")), boxMeta.size, boxMeta.size);
-		auto ro = box2dScene->attachToBox2dBody(boxMeta.body, sprite);
-
-		boxes[boxMeta.body] = std::unique_ptr<Box>(new Box(2.0f, ro));
-	}
+//	auto b2Vecs = groundData.vecs;
+//	auto boxMetas = levelGenerator.generateBoxes(
+//			box2dScene->getBox2dWorld(), b2Vecs[1].x, b2Vecs[b2Vecs.size()-1].x, 12.0f, 20.0f, 0.5f, 5.0f, 200);
+//	for (auto boxMeta : boxMetas) {
+//		auto sprite = std::make_shared<Sprite>(ImageId(ResourceId("images/box.png")), boxMeta.size, boxMeta.size);
+//		auto ro = box2dScene->attachToBox2dBody(boxMeta.body, sprite);
+//
+//		boxes[boxMeta.body] = std::unique_ptr<Box>(new Box(2.0f, ro));
+//	}
 }
 
 void LevelGroup::loadRocketCar(bool updateWorldProperties) {
@@ -187,12 +192,6 @@ void LevelGroup::loadRocketCar(bool updateWorldProperties) {
 	box2dScene->attachToBox2dBody(rocketCar.chassi, rocketCar.rocketEmitter);
 	box2dScene->setActor(rocketCar.chassi);
 
-	/*
-	box2dScene->schedule([this] () {
-		fadeIn();
-		return ticks::zero();
-	}, milliseconds(500));
-	*/
 	fadeIn();
 }
 
@@ -213,12 +212,11 @@ void LevelGroup::solveRoofCollision(b2Fixture* other) {
 		return;
 	}
 
-	for (auto& groundFixture : groundFixtures) {
+	for (auto& groundFixture : levelData.groundFixtures) {
 		if (other == groundFixture) {
 			rocketCar.setCrashed(true);
 			auto explosionEmitter = std::make_shared<ParticleEmitter>(explosionParticleGenerator, ResourceId("images/smoke.png"), 500);
 
-//			auto explosionEmitter = std::make_shared<ParticleEmitter>(createExplosionEmitterDescriptor(), 500);
 			auto explosionObject = box2dScene->attachToBox2dBody(rocketCar.chassi, explosionEmitter);
 			explosionObject->move(glm::vec3(0, 0, 5));
 			box2dScene->schedule([this, explosionObject]() {
@@ -314,8 +312,8 @@ void LevelGroup::onPreSolveContact(b2Contact *contact, b2Manifold const*) {
 }
 
 void LevelGroup::solveBoxCollision(b2Body *body, float impulse2) {
-	if (boxes.find(body) != boxes.end()) {
-		auto limit = boxes[body]->getDuration() * body->GetMass() * 10.0f;
+	if (levelData.boxes.find(body) != levelData.boxes.end()) {
+		auto limit = levelData.boxes[body]->getDuration() * body->GetMass() * 10.0f;
 		if (impulse2 > limit * limit) {
 			auto explosionEmitter = std::make_shared<ParticleEmitter>(explosionParticleGenerator, ResourceId("images/smoke.png"), 500);
 			auto bodyPos = body->GetPosition();
@@ -324,8 +322,8 @@ void LevelGroup::solveBoxCollision(b2Body *body, float impulse2) {
 			explosionEmitter->start();
 
 			// Let's remove box and body in the next frame
-			auto renderObject = boxes[body]->getRenderObject();
-			boxes.erase(body);
+			auto renderObject = levelData.boxes[body]->getRenderObject();
+			levelData.boxes.erase(body);
 			box2dScene->scheduleAfterPhysicsUpdate([this, body, renderObject]() {
 //				LOGD(boost::format("BOOM %s") % body);
 				box2dScene->removeAttachedObject(renderObject);

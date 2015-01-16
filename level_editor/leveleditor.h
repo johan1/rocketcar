@@ -101,7 +101,7 @@ private:
 
 	std::unique_ptr<QGraphicsScene> scene;
 
-	std::size_t historyPosition;
+	std::size_t historyPosition = 0;
 	std::vector<std::pair<EditorEntry, bool>> historyStack;
 
 	void setupScene();

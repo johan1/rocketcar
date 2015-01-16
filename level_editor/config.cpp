@@ -14,15 +14,20 @@ Config::Config() {
     std::ifstream file;
 
     auto configFile = QDir::homePath().append("/.rocketcar_editor").toStdString();
+    std::cout << configFile << std::endl;
     file.open(configFile);
     reader.parse(file, root);
     assets_path = root["assets_path"].asString();
+    std::cout << assets_path << std::endl;
 
 	loadGameItems();
 }
 
 void Config::loadGameItems() {
     auto configFilePath = assets_path + "/game_items.json";
+
+    std::cout << configFilePath << std::endl;
+
     std::ifstream configFile;
     Json::Reader reader;
     Json::Value root;

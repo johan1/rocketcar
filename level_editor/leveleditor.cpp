@@ -13,29 +13,29 @@
 static const float scale = 1.0f/64.0f;
 
 LevelEditor::LevelEditor(std::string const& name, int width, int height) : 
-		name(name), width(width), height(height), historyPosition(0) {
+		name(name), width(width), height(height) {
 	setupScene();
 }
 
 LevelEditor::LevelEditor(std::string const& path) {
-    Json::Value root;
-    Json::Reader reader;
+	Json::Value root;
+	Json::Reader reader;
 
-    std::ifstream file;
-    file.open(path);
-    reader.parse(file, root);
+	std::ifstream file;
+	file.open(path);
+	reader.parse(file, root);
 
-    name = root["name"].asString();
-    width = root["width"].asInt();
-    height = root["height"].asInt();
-    Json::Value tilesArr = root["tiles"];
+	name = root["name"].asString();
+	width = root["width"].asInt();
+	height = root["height"].asInt();
+	Json::Value tilesArr = root["tiles"];
 
 	setupScene();
 
-    for (auto& tileValue : tilesArr) {
+	for (auto& tileValue : tilesArr) {
 		auto name = tileValue["name"].asString();
-        auto x = tileValue["x"].asInt();
-        auto y = tileValue["y"].asInt();
+		auto x = tileValue["x"].asInt();
+		auto y = tileValue["y"].asInt();
 
 		auto go = lookupGameObject(name);
 		if (go) {
@@ -46,15 +46,15 @@ LevelEditor::LevelEditor(std::string const& path) {
 
 void LevelEditor::setupScene() {
 	scene = std::unique_ptr<QGraphicsScene>(new QGraphicsScene());
-    scene->setSceneRect(0, -static_cast<float>(height)/2.0f, width, height);
+	scene->setSceneRect(0, -static_cast<float>(height)/2.0f, width, height);
 
     // Let's draw grid...
-    QPen pen(QColor(0, 0, 255));
-    pen.setStyle(Qt::DashLine);
-    for (double x = 0.0; x < width; x += 1.0) {
-        scene->addLine(x, -height/2.0f, x, height/2.0f, pen);
-    }
-    for (double y = -static_cast<double>(height)/2.0; y < static_cast<double>(height)/2.0; y += 1.0) {
+	QPen pen(QColor(0, 0, 255));
+	pen.setStyle(Qt::DashLine);
+	for (double x = 0.0; x < width; x += 1.0) {
+    	scene->addLine(x, -height/2.0f, x, height/2.0f, pen);
+	}
+	for (double y = -static_cast<double>(height)/2.0; y < static_cast<double>(height)/2.0; y += 1.0) {
 		if (y == 0) {
         	scene->addLine(0, y, width, y, QPen(QColor(255, 0 ,0)));
 		} else {
@@ -165,7 +165,6 @@ void LevelEditor::store(std::string const& path) {
     for (auto& sceneObject : sceneObjects) {
         Json::Value tileValue;
         tileValue["name"] = sceneObject.first.go.name;
-
         tileValue["x"] = static_cast<int>(sceneObject.first.position.first);
         tileValue["y"] = static_cast<int>(sceneObject.first.position.second);
         tileArr.append(tileValue);

@@ -4,18 +4,15 @@
 #include <rocket/game2d/SceneGroup.h>
 #include <Box2D/Box2D.h>
 
-#include "box2d/CommonStructs.h"
 #include "world/Box2dScene.h"
 #include "ParallaxScene.h"
 #include "hud/EnergyBar.h"
 
-#include "world/Box.h"
-
 #include <rocket/game2d/world/ParticleEmitter.h>
 
-#include <unordered_map>
-
 #include <rocket/transitions/CircleFadeOut.h>
+
+#include "LevelLoader.h"
 
 namespace rocketcar {
 
@@ -61,7 +58,8 @@ private:
 		bool crashed;
 	};
 
-	std::vector<b2Fixture*> groundFixtures;
+	LevelData levelData;
+//	std::vector<b2Fixture*> groundFixtures;
 
 	struct HUD {
 		std::shared_ptr<EnergyBar> energyBar;
@@ -101,12 +99,11 @@ private:
 
 	bool onControllerEvent(rocket::input::ControllerEvent const& event);
 
-	std::unordered_map<b2Body*, std::unique_ptr<Box>> boxes;
+//	std::unordered_map<b2Body*, std::unique_ptr<Box>> boxes;
 
 	void fadeOut();
 
 	void fadeIn();
-
 };
 
 };

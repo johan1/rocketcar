@@ -7,6 +7,8 @@ LIBS += -ljsoncpp
 
 QMAKE_CXXFLAGS += -std=c++11
 
+CONFIG += qt debug
+
 # Input
 HEADERS += common.h \
            config.h \
@@ -22,4 +24,4 @@ SOURCES += config.cpp \
            main.cpp \
            mainwindow.cpp \
            newleveldialog.cpp \
-		   editorgraphicsview.cpp
+           editorgraphicsview.cpp
