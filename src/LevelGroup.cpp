@@ -1,7 +1,9 @@
 #include "LevelGroup.h"
 #include "world/Box2dScene.h"
 
+#include <rocket/Algorithm.h>
 #include <rocket/Log.h>
+#include <rocket/Application.h>
 #include <rocket/game2d/Director.h>
 #include <rocket/game2d/world/Scene.h>
 #include <rocket/game2d/world/Sprite.h>
@@ -12,7 +14,7 @@
 #include <rocket/util/Geometry.h>
 
 #include "GameState.h"
-#include "MainMenuGroup.h"
+#include "CarPickerGroup.h"
 
 #include "BackgroundAtlas.h"
 #include "ParallaxScene.h"
@@ -87,6 +89,14 @@ LevelGroup::LevelGroup() {
 		onPostSolveContact(contact, impulse);
 	});
 
+	box2dScene->setBeginContactCallback([this] (b2Contact* contact) {
+		onContactBegin(contact);
+	});
+
+	box2dScene->setEndContactCallback([this] (b2Contact* contact) {
+		onContactEnd(contact);
+	});
+
 	addScene(bgScene);
 	addScene(box2dScene);
 
@@ -110,42 +120,9 @@ void LevelGroup::loadHud() {
 }
 
 void LevelGroup::loadLevel() {
-	levelData = LevelLoader::getInstance().loadLevel(*box2dScene, *bgScene); // TODO: Add resource id for level descriptor
-
-		
-
-	// Generate ground. TODO: This should be done as a rube document, and not auto generated...
-//	WorldGenerator levelGenerator;
-//	auto groundData = levelGenerator.generateTerrain(box2dScene->getBox2dWorld());
-//
-//	auto ground = std::make_shared<Ground>(groundData.vecs, 32.0/48.0f, ImageId(ResourceId("images/grass.png")));
-//	auto groundObject = box2dScene->add(ground, false);
-//	groundObject->move(glm::vec3(0, 0, -8));
-
-//	groundFixtures.push_back(groundData.fixture);
-
-//	// Bg. We should refactor this
-//	// bgScene = std::make_shared<ParallaxScene>(box2dScene->getCamera());
-//	BackgroundAtlas bgAtlas(ResourceId("images/bg_atlas.png"));
-//	float pieceSize = 4.0f;
-//	for (float x = -6; x < 1000.0f; x += pieceSize) {
-//		for (float y = -10.5f * pieceSize; y < 10.5f * pieceSize; y += pieceSize) {
-//			if (y < -pieceSize * 0.5f) {
-//				bgScene->add( bgAtlas.getDirtPiece(), true)->setPosition(glm::vec3(x, y, -10.0f));
-//			} else if (y < pieceSize * 0.5f) {
-//				bgScene->add( bgAtlas.getGroundPiece(), true)->setPosition(glm::vec3(x, y, -10.0f));
-//			} else if (y < pieceSize * 1.5) {
-//				bgScene->add( bgAtlas.getGroundSkyPiece(), true)->setPosition(glm::vec3(x, y, -10.0f));
-//			} else if (y < pieceSize * 4.5f) {
-//				bgScene->add( bgAtlas.getSkyPiece(), true)->setPosition(glm::vec3(x, y, -10.0f));
-//			} else if (y < pieceSize * 5.5f) {
-//				bgScene->add( bgAtlas.getSkySpacePiece(), true)->setPosition(glm::vec3(x, y, -10.0f));
-//			} else {
-//				bgScene->add( bgAtlas.getSpacePiece(), true)->setPosition(glm::vec3(x, y, -10.0f));
-//			}
-//		}
-//	}
-//	addScene(bgScene); // WTF is this added already?
+	levelData = LevelLoader::getInstance().loadLevel(
+			ResourceId(GameState::getInstance().getCurrentLevel()),
+					*box2dScene, *bgScene);
 
 	// Boxes...
 //	auto b2Vecs = groundData.vecs;
@@ -184,6 +161,10 @@ void LevelGroup::loadRocketCar(bool updateWorldProperties) {
 	rocketCar.roofFixture = loadData.fixtures[
 			rocketCarBuildData.getCustomProperty<std::string>("roof_fixture", "roof_fixture")];
 
+	// Copy fixtures from load data to rocketCar.fixtures
+	rocketCar.fixtures.clear();
+	transform(loadData.fixtures, std::back_inserter(rocketCar.fixtures), getter<1>{});
+
 	rocketCar.maxRocketFuel = rocketCarBuildData.getCustomProperty<int>("max_fuel", 180);
 	rocketCar.rocketFuel = rocketCar.maxRocketFuel;
 	rocketCar.setCrashed(false);
@@ -207,53 +188,75 @@ void LevelGroup::onUnloaded() {
 	audioPlayer.free(bgMusic);
 }
 
-void LevelGroup::solveRoofCollision(b2Fixture* other) {
+void LevelGroup::solveRoofCollision(b2Contact const* contact) {
+	b2Fixture const* other;
+	if (contact->GetFixtureA() == rocketCar.roofFixture) {
+		other = contact->GetFixtureB();
+	} else if (contact->GetFixtureB() == rocketCar.roofFixture) {
+		other = contact->GetFixtureA();
+	}
+
+	auto it = find(levelData.groundFixtures, other);
+	if (it != levelData.groundFixtures.end()) {
+		destroyCar();
+	}
+}
+
+void LevelGroup::destroyCar() {
 	if (rocketCar.hasCrashed()) {
 		return;
 	}
 
-	for (auto& groundFixture : levelData.groundFixtures) {
-		if (other == groundFixture) {
-			rocketCar.setCrashed(true);
-			auto explosionEmitter = std::make_shared<ParticleEmitter>(explosionParticleGenerator, ResourceId("images/smoke.png"), 500);
+	rocketCar.setCrashed(true);
+	auto explosionEmitter = std::make_shared<ParticleEmitter>(explosionParticleGenerator, ResourceId("images/smoke.png"), 500);
 
-			auto explosionObject = box2dScene->attachToBox2dBody(rocketCar.chassi, explosionEmitter);
-			explosionObject->move(glm::vec3(0, 0, 5));
-			box2dScene->schedule([this, explosionObject]() {
-				box2dScene->remove(explosionObject);
-				return ticks::zero();
-			}, seconds(5));
+	auto explosionObject = box2dScene->attachToBox2dBody(rocketCar.chassi, explosionEmitter);
+	explosionObject->move(glm::vec3(0, 0, 5));
+	box2dScene->schedule([this, explosionObject]() {
+		box2dScene->remove(explosionObject);
+		return ticks::zero();
+	}, seconds(5));
 
-			
+	explosionEmitter->start();
 
-			explosionEmitter->start();
-
-			box2dScene->scheduleAfterPhysicsUpdate([this]() {
-				// TODO: Start explosion.
-				auto& world = box2dScene->getBox2dWorld();
-				auto joint = world.GetJointList();
-				while (joint) {
-					auto nextJoint = joint->GetNext();
-					if (joint->GetBodyA() == rocketCar.chassi || joint->GetBodyB() == rocketCar.chassi) {
-						world.DestroyJoint(joint);
-					}
-					joint = nextJoint;
-				}
-
-				box2dScene->schedule([this] () {
-					// We should schedule this for later...
-					loadRocketCar(false);
-					updateHud();
-					return ticks::zero();
-				}, seconds(3));
-
-				box2dScene->schedule([this] () {
-					fadeOut();
-					return ticks::zero();
-				}, seconds(2));
-
-			});
+	box2dScene->scheduleAfterPhysicsUpdate([this]() {
+		// TODO: Start explosion.
+		auto& world = box2dScene->getBox2dWorld();
+		auto joint = world.GetJointList();
+		while (joint) {
+			auto nextJoint = joint->GetNext();
+			if (joint->GetBodyA() == rocketCar.chassi || joint->GetBodyB() == rocketCar.chassi) {
+				world.DestroyJoint(joint);
+			}
+			joint = nextJoint;
 		}
+
+		box2dScene->schedule([this] () {
+			// We should schedule this for later...
+			loadRocketCar(false);
+			updateHud();
+			return ticks::zero();
+		}, seconds(3));
+
+		box2dScene->schedule([this] () {
+			fadeOut();
+			return ticks::zero();
+		}, seconds(2));
+	});
+}
+
+void LevelGroup::solveLevelBoundCollision(b2Contact const* contact) {
+	b2Fixture const *otherFixture;
+	if (contact->GetFixtureA() == levelData.borderFixture) {
+		otherFixture = contact->GetFixtureB();
+	} else if (contact->GetFixtureB() == levelData.borderFixture) {
+		otherFixture = contact->GetFixtureA();
+	} else {
+		return;
+	}
+
+	if (find(rocketCar.fixtures, otherFixture) != rocketCar.fixtures.end()) {
+		destroyCar();
 	}
 }
 
@@ -303,12 +306,8 @@ void LevelGroup::fadeIn() {
 }
 
 void LevelGroup::onPreSolveContact(b2Contact *contact, b2Manifold const*) {
-	// Check if any of the fixture is the roof of the car
-	if (contact->GetFixtureA() == rocketCar.roofFixture) {
-		solveRoofCollision(contact->GetFixtureB());
-	} else if (contact->GetFixtureB() == rocketCar.roofFixture) {
-		solveRoofCollision(contact->GetFixtureA());
-	}
+	solveRoofCollision(contact);
+	solveLevelBoundCollision(contact);
 }
 
 void LevelGroup::solveBoxCollision(b2Body *body, float impulse2) {
@@ -349,6 +348,46 @@ void LevelGroup::onPostSolveContact(b2Contact* contact, const b2ContactImpulse* 
 	solveBoxCollision(bodyB, impulse2);
 }
 
+void LevelGroup::onContactBegin(b2Contact* contact) {
+//	LOGD("Contact begin!!!");
+	if (!rocketCar.hasCrashed()) {
+		solveExitContact(contact);
+	}
+}
+
+void LevelGroup::onContactEnd(b2Contact* contact) {
+	// Empty for now...
+}
+
+void LevelGroup::solveExitContact(b2Contact const* contact) {
+	b2Fixture const* exitFixture;
+	b2Fixture const* otherFixture;
+	if (contains_element(levelData.exitFixtures, contact->GetFixtureA())) {
+		exitFixture = contact->GetFixtureA();
+		otherFixture = contact->GetFixtureB();
+	} else if (contains_element(levelData.exitFixtures, contact->GetFixtureB())) {
+		exitFixture = contact->GetFixtureB();
+		otherFixture = contact->GetFixtureA();
+	} else {
+		return; // No interesting sensor event.
+	}
+
+	if (contains_element(rocketCar.fixtures, otherFixture)) {
+		levelComplete = true;
+		if (!box2dScene->isPhysicsPaused()) {
+			box2dScene->pausePhysics();
+			Application::getApplication().schedule([this]() {
+				// TODO: Director needs a replace scene group
+				// possible with a transition.
+				GameState::getInstance().nextLevel();
+				Director::getDirector().removeSceneGroup(this);
+				Director::getDirector().addSceneGroup(
+						std::make_shared<LevelGroup>());
+				return ticks::zero();
+			}, seconds(5));
+		}
+	}
+}
 
 bool LevelGroup::onControllerEvent(rocket::input::ControllerEvent const& ce) {
 	if (rocketCar.hasCrashed()) {
@@ -373,17 +412,14 @@ bool LevelGroup::onControllerEvent(rocket::input::ControllerEvent const& ce) {
 		Director::getDirector().addSceneGroup(std::make_shared<LevelGroup>());
 	} else if (ce.getButtonId() == button_id::BUTTON_BACK && ce.getValue() != 0) {
 		Director::getDirector().removeSceneGroup(this);
-		Director::getDirector().addSceneGroup(std::make_shared<MainMenuGroup>());
+		Director::getDirector().addSceneGroup(std::make_shared<CarPickerGroup>());
 	}
 
 	return true;
 }
 
 void LevelGroup::updateHud() {
-	auto rocketFuel = static_cast<float>(rocketCar.rocketFuel) / 
-			static_cast<float>(rocketCar.maxRocketFuel);
-
-	hud.energyBar->setValues(50*rocketFuel, 50);
+	hud.energyBar->setValues((50*rocketCar.rocketFuel)/rocketCar.maxRocketFuel, 50);
 }
 
 void LevelGroup::onUpdate() {

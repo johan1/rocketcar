@@ -1,6 +1,5 @@
 #include "CarPickerGroup.h"
-#include "MainMenuGroup.h"
-
+#include "LevelGroup.h"
 #include <rocket/game2d/scene/ControllerScene.h>
 #include <rocket/input/ControllerEvent.h>
 #include <rocket/game2d/world/Sprite.h>
@@ -176,7 +175,7 @@ bool CarPickerGroup::onControllerEvent(rocket::input::ControllerEvent const& eve
 		return true;
 	} else if (event.getButtonId() == button_id::ACTION) {
 		Director::getDirector().removeSceneGroup(this);
-		Director::getDirector().addSceneGroup(std::make_shared<MainMenuGroup>());
+		Director::getDirector().addSceneGroup(std::make_shared<LevelGroup>());
 		return true;
 	} else {
 		return false;

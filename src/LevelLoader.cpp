@@ -21,17 +21,17 @@ LevelLoader& LevelLoader::getInstance() {
 	return loader;
 }
 
-LevelData LevelLoader::loadLevel(Box2dScene& box2dScene, ParallaxScene& bgScene) {
-	ResourceId level("level1.json");
-	
+LevelData LevelLoader::loadLevel(ResourceId const& levelResource, Box2dScene& box2dScene,
+		ParallaxScene& bgScene) {
 	// TODO: We should check theme and load appropriate atlas, if no theme let's enable box2d rendering
 	auto b2RenderObject = box2dScene.add(std::make_shared<Box2dDebug>(&box2dScene.getBox2dWorld()), false);
 	b2RenderObject->move(glm::vec3(0,0,-1));
-	return load(box2dScene, level);
+	return load(box2dScene, levelResource);
 }
 
 LevelData LevelLoader::load(Box2dScene &scene, ResourceId const& levelResource) {
     Json::Value root = loadJson(levelResource);
+	LevelData ld;
 
 	// Create border
 	{
@@ -56,14 +56,15 @@ LevelData LevelLoader::load(Box2dScene &scene, ResourceId const& levelResource) 
 		chain.CreateChain(limits.data(), limits.size());
 		fixtureDef.shape = &chain;
 
-		body->CreateFixture(&fixtureDef);
+		ld.borderFixture = body->CreateFixture(&fixtureDef);
 	}
 
-	LevelData ld;
 	auto &tilesArr = root["tiles"];
 	for (auto &tile : tilesArr) {
 		if (tile["name"].asString().find("ground") == 0) {
 			addGround(ld, scene, tile);
+		} else if (tile["name"].asString().find("exit") == 0) {
+			addExit(ld, scene, tile);
 		}
 	}
 
@@ -128,6 +129,36 @@ void LevelLoader::addGround(LevelData &ld, Box2dScene &scene, Json::Value const&
 	auto body = scene.getBox2dWorld().CreateBody(&bodyDef);
 	auto fixture = body->CreateFixture(&groundFixtureDef);
 	ld.groundFixtures.push_back(fixture);
+}
+
+void LevelLoader::addExit(LevelData &ld, Box2dScene &scene, Json::Value const& exitValue) {
+	auto name = exitValue["name"].asString();
+	auto x = exitValue["x"].asDouble();
+	auto y = exitValue["y"].asDouble();
+
+	b2BodyDef bodyDef;
+	bodyDef.position = b2Vec2(x, y);
+	bodyDef.type = b2_staticBody;
+
+	b2FixtureDef exitFixtureDef;
+	exitFixtureDef.density = 1.0;
+	b2PolygonShape shape;
+	b2Vec2 vecs[4];
+
+	if (name == "exit44") {
+		vecs[0].Set(0, 0);
+		vecs[1].Set(4, 0);
+		vecs[2].Set(4, 4);
+		vecs[3].Set(0, 4);
+		shape.Set(vecs, 4);
+	}
+
+	exitFixtureDef.shape = &shape;
+
+	auto body = scene.getBox2dWorld().CreateBody(&bodyDef);
+	auto fixture = body->CreateFixture(&exitFixtureDef);
+	fixture->SetSensor(true);
+	ld.exitFixtures.push_back(fixture);
 }
 
 LevelData LevelLoader::deprecatedGenerator(Box2dScene& box2dScene) {

@@ -22,19 +22,22 @@ namespace rocketcar {
 // if roof collides with any fixture marked as ground.
 struct LevelData {
 	std::vector<b2Fixture*> groundFixtures;
+	std::vector<b2Fixture*> exitFixtures;
 	std::unordered_map<b2Body*, std::unique_ptr<Box>> boxes;
+	b2Fixture *borderFixture;
 };
 
 class LevelLoader {
 public:
 	static LevelLoader& getInstance();
-	LevelData loadLevel(Box2dScene& box2dScene, ParallaxScene& bgScene);
+	LevelData loadLevel(rocket::ResourceId const& levelResource, Box2dScene& box2dScene, ParallaxScene& bgScene);
 
 private:
 	LevelLoader();
 
 	LevelData load(Box2dScene& scene, rocket::ResourceId const& levelResource);
 	void addGround(LevelData &ld, Box2dScene& scene, Json::Value const& value);
+	void addExit(LevelData &ld, Box2dScene& scene, Json::Value const& value);
 
 	LevelData deprecatedGenerator(Box2dScene& box2dScene);
 };

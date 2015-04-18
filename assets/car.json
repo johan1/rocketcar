@@ -210,7 +210,7 @@
       },
       
       {
-         "float" : -4.0,
+         "float" : -10.0,
          "name" : "actor_view_lower_x"
       },
       
@@ -220,7 +220,7 @@
       },
       
       {
-         "float" : 4.0,
+         "float" : -6.0,
          "name" : "actor_view_upper_x"
       },
       

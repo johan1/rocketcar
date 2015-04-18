@@ -155,14 +155,15 @@ LoadData Box2dScene::loadBox2dData(Box2dParseData const& box2dData, b2Vec2 const
 
 void Box2dScene::updateImpl() {
 	// Update physics.
-	box2dWorld.Step(1.0f/60.0f, 6, 2);
+	if (physicsRunning) {
+		box2dWorld.Step(1.0f/60.0f, 6, 2);
+	}
 
 	// Post world update actions...
 	for (auto& task : afterPhysicsTasks) {
 		task();
 	}
 	afterPhysicsTasks.clear();
-	
 
 	if (actor != nullptr) {
 		updateCameraPosition();

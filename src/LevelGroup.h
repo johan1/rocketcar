@@ -29,6 +29,7 @@ private:
 		b2Body* wheel1;
 		b2Body* wheel2;
 		b2Fixture* roofFixture; // We destroy car if roof collides with ground
+		std::vector<b2Fixture*> fixtures;
 
 		bool applyGas;
 		bool applyRocket;
@@ -59,7 +60,6 @@ private:
 	};
 
 	LevelData levelData;
-//	std::vector<b2Fixture*> groundFixtures;
 
 	struct HUD {
 		std::shared_ptr<EnergyBar> energyBar;
@@ -78,6 +78,7 @@ private:
 	std::shared_ptr<rocket::game2d::ParticleGenerator> explosionParticleGenerator;
 
 	std::shared_ptr<rocket::CircleFadeOut> postRenderer;
+	bool levelComplete = false;
 
 	RocketCar rocketCar;
 	HUD hud;
@@ -92,14 +93,19 @@ private:
 	void loadLevel();
 	void loadRocketCar(bool updateWorldProperties);
 
-	void solveRoofCollision(b2Fixture* other);
+	void destroyCar();
+
+	void solveRoofCollision(b2Contact const* contact); //b2Fixture* other);
 	void solveBoxCollision(b2Body *body, float impulse2);
+	void solveLevelBoundCollision(b2Contact const* contact);
+	void solveExitContact(b2Contact const* contact);
+
+	void onContactBegin(b2Contact* contact);
+	void onContactEnd(b2Contact* contact);
 	void onPreSolveContact(b2Contact *contact, b2Manifold const* oldManifold);
 	void onPostSolveContact(b2Contact* contact, const b2ContactImpulse* impulse);
 
 	bool onControllerEvent(rocket::input::ControllerEvent const& event);
-
-//	std::unordered_map<b2Body*, std::unique_ptr<Box>> boxes;
 
 	void fadeOut();
 

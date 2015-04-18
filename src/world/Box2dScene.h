@@ -31,10 +31,8 @@ struct BodyAttachDesc {
 	b2Body const* body;
 	rocket::game2d::RenderObject *emptyObject;
 	rocket::game2d::RenderObject *attachedObject;
-//	glm::vec2 offset;
-//	float angle;
 
-	BodyAttachDesc() : body(nullptr) {} // , offset(0), angle(0.0f) {}
+	BodyAttachDesc() : body(nullptr) {}
 };
 
 class Box2dScene : public rocket::game2d::Scene, private b2ContactListener {
@@ -45,13 +43,23 @@ public:
 	void setActor(b2Body* body);
 	b2Body* getActor();
 
+	void pausePhysics() {
+		physicsRunning = false;
+	}
+
+	void resumePhysics() {
+		physicsRunning = true;
+	}
+
+	bool isPhysicsPaused() const {
+		return !physicsRunning;
+	}
+
 	// Constraint camera distance to actor
 	void setCameraDistanceToActor(float left, float right, float bottom, float top);
 
 	//! Set camera speed, units per frame.
 	void setCameraSpeed(float cameraSpeed) { this->cameraSpeed = cameraSpeed; }
-
-//	std::shared_ptr<b2World> const& getBox2dWorld();
 
 	// Box2d Contact Listener stuff.
 	virtual void BeginContact(b2Contact* contact) {
@@ -113,6 +121,8 @@ public:
 
 private:
 	b2World box2dWorld;
+
+	bool physicsRunning = true;
 	std::map<int, b2MouseJoint*> mouseJoints;
 	std::vector<std::function<void(void)>> afterPhysicsTasks;
 
