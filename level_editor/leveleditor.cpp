@@ -2,13 +2,15 @@
 
 #include "config.h"
 
-#include <jsoncpp/json/json.h>
-#include <jsoncpp/json/writer.h>
+#include <json/json.h>
+#include <json/writer.h>
 
 #include <iostream>
 #include <fstream>
 #include <QPen>
 #include <QGraphicsPixmapItem>
+
+constexpr bool LOG_DEBUG = false;
 
 static const float scale = 1.0f/64.0f;
 
@@ -48,6 +50,12 @@ void LevelEditor::setupScene() {
 	scene = std::unique_ptr<QGraphicsScene>(new QGraphicsScene());
 	scene->setSceneRect(0, -static_cast<float>(height)/2.0f, width, height);
 
+	QPixmap pixmap {"/home/johan/src/rocket/rocketcar/assets/images/stary_bg.png"};
+	auto pixmapItem = scene->addPixmap(pixmap);
+	pixmapItem->setVisible(true);
+	pixmapItem->setScale(2.0/static_cast<double>(height));
+	pixmapItem->setPos(0.0, -height/2.0);
+
     // Let's draw grid...
 	QPen pen(QColor(0, 0, 255));
 	pen.setStyle(Qt::DashLine);
@@ -65,7 +73,9 @@ void LevelEditor::setupScene() {
 
 void LevelEditor::addGameObject(GameObject const& go, int x, int y) {
 	if (overlappingExistingGameObject(go, x, y)) {
-		std::cout << "Unable to add game object position occupied" << std::endl;
+        if (LOG_DEBUG) {
+            std::cout << "Unable to add game object position occupied" << std::endl;
+        }
 		return;
 	}
 

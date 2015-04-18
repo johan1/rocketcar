@@ -12,6 +12,14 @@ void EditorGraphicsView::mousePressEvent(QMouseEvent *event) {
 	emit sceneClicked(event, scenePos);
 }
 
+void EditorGraphicsView::mouseMoveEvent(QMouseEvent *event) {
+	QGraphicsView::mouseMoveEvent(event);
+	
+	auto& pos = event->pos();
+	auto scenePos = this->mapToScene(pos);
+	emit sceneMoved(event, scenePos);
+}
+
 void EditorGraphicsView::setCurrentGameObject(GameObject const* gameObject) {
 	currentGameObject = gameObject;
 	cursorPixmap = QPixmap(QString::fromStdString(getImagePath(*gameObject)));

@@ -127,6 +127,7 @@
    <header>editorgraphicsview.h</header>
    <slots>
     <signal>sceneClicked(QMouseEvent*,QPointF)</signal>
+    <signal>sceneMoved(QMouseEvent*,QPointF)</signal>
    </slots>
   </customwidget>
  </customwidgets>
@@ -244,6 +245,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>graphicsView</sender>
+   <signal>sceneMoved(QMouseEvent*,QPointF)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>sceneMoved(QMouseEvent*,QPointF)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>293</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>293</x>
+     <y>246</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>newLevel()</slot>
@@ -253,5 +270,6 @@
   <slot>sceneClicked(QMouseEvent*,QPointF)</slot>
   <slot>undo()</slot>
   <slot>redo()</slot>
+  <slot>sceneMoved(QMouseEvent*,QPointF)</slot>
  </slots>
 </ui>

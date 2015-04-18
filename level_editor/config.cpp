@@ -6,7 +6,7 @@
 #include <fstream>
 #include <string>
 
-#include <jsoncpp/json/json.h>
+#include <json/json.h>
 
 Config::Config() {
     Json::Value root;

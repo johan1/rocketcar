@@ -1,6 +1,7 @@
 {
 	"categories": [
-		{ "name": "ground", "icon": "ground00.png" }
+		{ "name": "ground", "icon": "ground00.png" },
+		{ "name": "exit", "icon": "exit44.png" }
 	],
 
 	"gameobjects": [
@@ -10,6 +11,8 @@
 		{ "name": "ground12+", "category": "ground", "image": "ground12+.png", "width": 1, "height": 2 },
 		{ "name": "ground12-", "category": "ground", "image": "ground12-.png", "width": 1, "height": 2 },
 		{ "name": "ground21+", "category": "ground", "image": "ground21+.png", "width": 2, "height": 1 },
-		{ "name": "ground21-", "category": "ground", "image": "ground21-.png", "width": 2, "height": 1 }
+		{ "name": "ground21-", "category": "ground", "image": "ground21-.png", "width": 2, "height": 1 },
+		{ "name": "exit44", "category": "exit", "image": "exit44.png", "width": 4, "height": 4 }
+
 	]
 }

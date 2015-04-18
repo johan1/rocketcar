@@ -115,28 +115,40 @@ void MainWindow::redo() {
     ui->graphicsView->update();
 }
 
-void MainWindow::sceneClicked(QMouseEvent* event, QPointF position) {
-	float x;
-	float y;
-	if (selectedGameObject) {
-		x = std::floor(position.x() -
-				static_cast<float>(selectedGameObject->width)/2.0f + 0.5f);
-		y = std::floor(-position.y() -
-				static_cast<float>(selectedGameObject->height)/2.0f + 0.5f);
-	} else {
-		x = std::floor(position.x());
-		y = std::floor(-position.y());
-	}
+void MainWindow::sceneAction(QPointF position)  {
+    float x;
+    float y;
+    if (selectedGameObject) {
+        x = std::floor(position.x() -
+                static_cast<float>(selectedGameObject->width)/2.0f + 0.5f);
+        y = std::floor(-position.y() -
+                static_cast<float>(selectedGameObject->height)/2.0f + 0.5f);
+    } else {
+        x = std::floor(position.x());
+        y = std::floor(-position.y());
+    }
 
-	if (event->button() == Qt::RightButton) {
-		levelEditor.removeGameObjectAtPosition(x, y);
-	} else if (selectedGameObject && event->button() == Qt::LeftButton) {
-		levelEditor.addGameObject(*selectedGameObject, x, y);
-	} else {
-		return;
-	}
+    if (clickedButton == Qt::RightButton) {
+        levelEditor.removeGameObjectAtPosition(x, y);
+    } else if (selectedGameObject && clickedButton == Qt::LeftButton) {
+        levelEditor.addGameObject(*selectedGameObject, x, y);
+    } else {
+        // std::cout << "Other stuff" << std::endl;
+        return;
+    }
 
     ui->graphicsView->update();
+}
+
+void MainWindow::sceneClicked(QMouseEvent* event, QPointF position) {
+    clickedButton = event->button();
+    sceneAction(position);
+}
+
+
+
+void MainWindow::sceneMoved(QMouseEvent* event, QPointF position) {
+    sceneAction(position);
 }
 
 void MainWindow::setupEditorGraphics() {

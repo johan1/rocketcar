@@ -30,6 +30,7 @@ private:
     LevelEditor levelEditor;
     std::string filePath;
 	float scale;
+    Qt::MouseButton clickedButton;
 
     std::vector<std::unique_ptr<QMenu>> gameObjectGroups;
 
@@ -41,6 +42,8 @@ private:
     void newLevel(LevelEditor && levelEditor);
     void loadGameItems();
 
+    void sceneAction(QPointF position);
+
 private slots:
     void newLevel();
     void openLevel();
@@ -51,6 +54,8 @@ private slots:
 
     void gameObjectPicked();
 	void sceneClicked(QMouseEvent* event, QPointF position);
+	void sceneMoved(QMouseEvent* event, QPointF position);
+
 };
 
 #endif // MAINWINDOW_H
