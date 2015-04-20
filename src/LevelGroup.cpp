@@ -11,7 +11,9 @@
 #include <rocket/input/ControllerEvent.h>
 #include <rocket/game2d/world/Text.h>
 #include <rocket/game2d/scene/ControllerScene.h>
+
 #include <rocket/util/Geometry.h>
+#include <rocket/util/Projection.h>
 
 #include "GameState.h"
 #include "CarPickerGroup.h"
@@ -355,36 +357,24 @@ void LevelGroup::onContactBegin(b2Contact* contact) {
 	}
 }
 
-void LevelGroup::onContactEnd(b2Contact* contact) {
+void LevelGroup::onContactEnd(b2Contact*) {
 	// Empty for now...
 }
 
 void LevelGroup::solveExitContact(b2Contact const* contact) {
-	b2Fixture const* exitFixture;
 	b2Fixture const* otherFixture;
 	if (contains_element(levelData.exitFixtures, contact->GetFixtureA())) {
-		exitFixture = contact->GetFixtureA();
 		otherFixture = contact->GetFixtureB();
 	} else if (contains_element(levelData.exitFixtures, contact->GetFixtureB())) {
-		exitFixture = contact->GetFixtureB();
 		otherFixture = contact->GetFixtureA();
 	} else {
 		return; // No interesting sensor event.
 	}
 
 	if (contains_element(rocketCar.fixtures, otherFixture)) {
-		levelComplete = true;
-		if (!box2dScene->isPhysicsPaused()) {
-			box2dScene->pausePhysics();
-			Application::getApplication().schedule([this]() {
-				// TODO: Director needs a replace scene group
-				// possible with a transition.
-				GameState::getInstance().nextLevel();
-				Director::getDirector().removeSceneGroup(this);
-				Director::getDirector().addSceneGroup(
-						std::make_shared<LevelGroup>());
-				return ticks::zero();
-			}, seconds(5));
+		if (!levelComplete) {
+			levelComplete = true;
+			onLevelCompleted();
 		}
 	}
 }
@@ -455,6 +445,27 @@ void LevelGroup::onUpdate() {
 			rocketCar.rocketEmitter->stop();
 		}
 	}
+}
+
+void LevelGroup::onLevelCompleted() {
+	box2dScene->pausePhysics();
+
+	Application::getApplication().schedule([this]() {
+		// TODO: Move ui setup of completed scene to a better place, perhaps its own class.
+		auto levelCompletedScene = std::make_shared<Scene>(WindowProjection<>{10.0f});
+		auto text = std::make_shared<Text>("Level complete", 72, ResourceId("fonts/carbon_phyber.ttf"), 72, 0xffffffff);
+		levelCompletedScene->add(text, false);
+		Director::getDirector().addScene(levelCompletedScene);
+		addScene(levelCompletedScene);
+		return ticks::zero();
+	});
+
+	Application::getApplication().schedule([this]() {
+		GameState::getInstance().nextLevel();
+		Director::getDirector().removeSceneGroup(this);
+		Director::getDirector().addSceneGroup(std::make_shared<LevelGroup>());
+		return ticks::zero();
+	}, seconds(5));
 }
 
 }

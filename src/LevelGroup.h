@@ -110,6 +110,8 @@ private:
 	void fadeOut();
 
 	void fadeIn();
+
+	void onLevelCompleted();
 };
 
 };
