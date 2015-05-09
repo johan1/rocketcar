@@ -450,7 +450,7 @@ void LevelGroup::onUpdate() {
 void LevelGroup::onLevelCompleted() {
 	box2dScene->pausePhysics();
 
-	Application::getApplication().schedule([this]() {
+	Application::getApplication().getEngine().schedule([this]() {
 		// TODO: Move ui setup of completed scene to a better place, perhaps its own class.
 		auto levelCompletedScene = std::make_shared<Scene>(WindowProjection<>{10.0f});
 		auto text = std::make_shared<Text>("Level complete", 72, ResourceId("fonts/carbon_phyber.ttf"), 72, 0xffffffff);
@@ -460,7 +460,7 @@ void LevelGroup::onLevelCompleted() {
 		return ticks::zero();
 	});
 
-	Application::getApplication().schedule([this]() {
+	Application::getApplication().getEngine().schedule([this]() {
 		GameState::getInstance().nextLevel();
 		Director::getDirector().removeSceneGroup(this);
 		Director::getDirector().addSceneGroup(std::make_shared<LevelGroup>());

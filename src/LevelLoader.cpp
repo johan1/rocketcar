@@ -9,6 +9,8 @@
 #include "world/Ground.h"
 #include "WorldGenerator.h"
 #include "world/Box2dDebug.h"
+#include <Box2D/Common/b2Math.h>
+#include <array>
 
 namespace rocketcar {
 
