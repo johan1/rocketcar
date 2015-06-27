@@ -55,11 +55,11 @@ LevelGroup::LevelGroup() {
 	std::shared_ptr<ControllerScene> controllerScene = std::make_shared<ControllerScene>(1);
 	auto button1 = controllerScene->addButton(button_id::BUTTON1);
 	button1->setPosition(glm::vec3(-0.5, 0, 0));
-	button1->setDimension(glm::vec3(1, 1, 1));
+	button1->setDimension(glm::vec3(1, 2, 1));
 
 	auto button2 = controllerScene->addButton(button_id::BUTTON2);
 	button2->setPosition(glm::vec3(0.5, 0, 0));
-	button2->setDimension(glm::vec3(1, 1, 1));
+	button2->setDimension(glm::vec3(1, 2, 1));
 
 	addScene(controllerScene);
 
